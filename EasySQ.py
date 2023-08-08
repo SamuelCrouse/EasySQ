@@ -69,6 +69,13 @@ class Analysis:
     # note: given a filepath, reads and creates an anndata object
     def readVizgen(self, data_path):
         return tools.readVizgen(data_path)
+
+    def availableGraphs(self, log=True):
+        return tools.availableGraphs(self.getAdata(), log=log)
+
+    def spatialScatter(self, graphs, show=True, colors=None):
+        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, colors=colors)
+
     # endregion
 
     ####################################################################################################################
@@ -82,6 +89,8 @@ class Analysis:
         print("\nDATA")
         print(" data path: {}".format(self.getDataPath()))
         print(" adata:\n {}".format(self.getAdata()))
+
+        print("")
     # endregion
 
 
@@ -90,4 +99,7 @@ if __name__ == "__main__":
 
     esqAnalysis = Analysis(data_path=path)
     esqAnalysis.print()
+
+    esqAnalysis.availableGraphs()
+    esqAnalysis.spatialScatter('Th')
 

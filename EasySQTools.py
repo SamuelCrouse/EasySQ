@@ -96,7 +96,7 @@ def readVizgen(data_path, transform_path=None, transform_file='micron_to_mosaic_
 def adataSetup(adata):
     print("start setup calculations")
     print("BEFORE:")
-    printAvailableGraphs(adata)
+    availableGraphs(adata)
 
     print("\ncalculating QC metrics...")
     perUnassigned = qc_metrics(adata)
@@ -121,7 +121,7 @@ def adataSetup(adata):
     leiden(adata)
 
     print("AFTER:")
-    printAvailableGraphs(adata)
+    availableGraphs(adata)
     print("finished setup calculations\n")
 
 
@@ -167,6 +167,10 @@ def neighbors(adata):
 
 def calcUMAP(adata):
     sc.tl.umap(adata)
+
+
+def clustering(adata):
+    pass
 
 
 def leiden(adata, ignore=False):
@@ -230,6 +234,12 @@ def spatialScatter(adata, graphs, show=True, colors=None):
     if show:
         plt.show()
 
+    return
+
+
+def showPlots():
+    plt.show()
+
 
 # search for a 'colors' directory which contains the following file names
 # defaults to the current working dir.
@@ -291,11 +301,16 @@ def searchFiles(data_path, fileToFind):
 
 
 # these are values that can be passed into spatialScatter() colors for graphing
-def printAvailableGraphs(adata):
+def availableGraphs(adata, log=True):
     var_list = list(adata.var_names)
     obs_columns_list = list(adata.obs.columns)
 
-    print("AVAILABLE GRAPHS:\n {}\n {}".format(var_list, obs_columns_list))
+    if log:
+        print("AVAILABLE GRAPHS:\n Pass any of these to spatialScatter() to plot!\n Genes: {}\n Analyses: {}"
+              "".format(var_list, obs_columns_list))
+
+    graphs = var_list + obs_columns_list
+    return graphs
 
 
 # tests for EasySQ.py
@@ -315,7 +330,7 @@ if __name__ == "__main__":
 
     # note: spatialScatter() tests and supporting funcs like getColors() and adataSetup()
     print("spatialScatter() and analysis tests")
-    printAvailableGraphs(testAdata)  # graphs available before setup
+    print(availableGraphs(testAdata))  # graphs available before setup
     spatialScatter(testAdata, ['volume', 'Th'])  # plot some of them
     adataSetup(testAdata)  # setup adata: produces additional graphs
     spatialScatter(testAdata, ['leiden'])  # run some spatial scatter tests
