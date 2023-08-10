@@ -10,6 +10,8 @@ import string
 import os
 import matplotlib.pyplot as plt
 import warnings
+import pandas as pd
+from copy import deepcopy
 
 logging.captureWarnings(True)
 import squidpy as sq
@@ -99,10 +101,10 @@ def adataSetup(adata):
     availableGraphs(adata)
 
     print("\ncalculating QC metrics...")
-    perUnassigned = qc_metrics(adata)
+    perUnassigned = qcMetrics(adata)
     print("percent unassigned {}%".format(perUnassigned))
 
-    print("\nrunning a bunch of data calculations...")
+    print("\nrunning a bunch of calculations...")
     print("layers...")
     adata.layers["counts"] = adata.X.copy()
     print("\nhighly variable genes...")
@@ -112,11 +114,11 @@ def adataSetup(adata):
     print("\nlog1p...")
     log1p(adata)
     print("\nprinciple component analysis...")
-    pca(adata)
+    pp_pca(adata)
     print("\nneighbors...")
     neighbors(adata)
     print("\ncalculate UMAP...")
-    calcUMAP(adata)
+    tl_umap(adata)
     print("\nleiden...")
     leiden(adata)
 
@@ -124,9 +126,11 @@ def adataSetup(adata):
     availableGraphs(adata)
     print("finished setup calculations\n")
 
+    return None
+
 
 # region adataSetup functions
-def qc_metrics(adata, percentTop=(50, 100)):
+def qcMetrics(adata, percentTop=(50, 100)):
     try:
         adata.var_names_make_unique()
         adata.var["mt"] = adata.var_names.str.startswith("mt-")
@@ -146,36 +150,103 @@ def qc_metrics(adata, percentTop=(50, 100)):
 
 
 def highlyVariableGenes(adata, nTopGenes=4000):
-    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=nTopGenes)
+    return sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=nTopGenes)
 
 
 def normalizeTotal(adata):
-    sc.pp.normalize_total(adata)
+    return sc.pp.normalize_total(adata)
 
 
 def log1p(adata):
-    sc.pp.log1p(adata)
+    return sc.pp.log1p(adata)
 
 
-def pca(adata):
-    sc.pp.pca(adata)
+def pp_pca(adata):
+    return sc.pp.pca(adata)
+
+
+def tl_pca(adata, svdSolver="arpack"):
+    return sc.tl.pca(adata, svd_solver=svdSolver)
 
 
 def neighbors(adata):
-    sc.pp.neighbors(adata)
+    return sc.pp.neighbors(adata)
 
 
-def calcUMAP(adata):
-    sc.tl.umap(adata)
+# UMAP calculations functions
+def tl_umap(adata):
+    return sc.tl.umap(adata)
+
+
+# UMAP plot function
+def pl_umap(adata, graphs=["leiden"], size=5):
+    # default leiden color initialization
+    for graph in graphs:
+        if graph.lower() == "leiden":  # check if leiden is in colors
+            leidenColorInit(adata=adata)
+
+    try:
+        return sc.pl.umap(adata, color=graphs, size=size)
+
+    except KeyError as e:
+        e = str(e).strip().replace("'", '')
+        catchStr = 'Could not find key leiden in .var_names or .obs.columns.'
+
+        if e == catchStr:
+            raise KeyError("Could not find key leiden in .var_names or .obs.columns! Please run leiden() first!")
 
 
 def clustering(adata):
     pass
 
 
-def leiden(adata, ignore=False):
+# assign cell types based on a liver cell type marker reference
+def assignCellTypes(adata):
+    gene_panel = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41421-021-00266-1/MediaObjects/41421_2021_266_MOESM1_ESM.xlsx"
+    df_ref_panel_ini = pd.read_excel(gene_panel, index_col=0)
+    df_ref_panel = df_ref_panel_ini.iloc[1:, :1]
+    df_ref_panel.index.name = None
+    df_ref_panel.columns = ["Function"]
+
+    # Assign marker gene metadata using reference dataset
+    marker_genes = df_ref_panel[
+        df_ref_panel["Function"].str.contains("marker")
+    ].index.tolist()
+
+    meta_gene = deepcopy(adata.var)
+    common_marker_genes = list(set(meta_gene.index.tolist()).intersection(marker_genes))
+    meta_gene.loc[common_marker_genes, "Markers"] = df_ref_panel.loc[
+        common_marker_genes, "Function"
+    ]
+    meta_gene["Markers"] = meta_gene["Markers"].apply(
+        lambda x: "N.A." if "marker" not in str(x) else x
+    )
+    return meta_gene["Markers"].value_counts()
+
+
+# calculate spatial neighbors data
+def spatialNeighbors(adata, coordType="generic", spatialKey="spatial"):
+    return sq.gr.spatial_neighbors(adata=adata, coord_type=coordType, spatial_key=spatialKey)
+
+
+# calculate nhoodEnrichment
+def gr_nhoodEnrichment(adata, clusterKey="leiden"):
+    return sq.gr.nhood_enrichment(adata=adata, cluster_key=clusterKey)
+
+
+# plot nhoodEnrichment data: No return value
+def pl_nhoodEnrichment(adata, plotNow=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+                       figsize=(5, 5)):
+    sq.pl.nhood_enrichment(adata=adata, cluster_key=clusterKey, method=method, cmap=cmap, vmin=vmin,
+                           vmax=vmax, figsize=figsize)
+
+    if plotNow:
+        plt.show()
+
+
+def leiden(adata, resolution=1.0, ignore=False):
     try:
-        sc.tl.leiden(adata)
+        return sc.tl.leiden(adata, resolution=resolution)
 
     except KeyError as e:
         e = str(e).strip().replace("'", '')
@@ -187,12 +258,25 @@ def leiden(adata, ignore=False):
             warnings.warn("Warning................................\n{}".format(warnNeighborsStr))
 
             neighbors(adata)
-            leiden(adata, ignore=True)  # call leiden again with ignore, so if we get this error we will raise
-            return
+            return leiden(adata, ignore=True)  # call leiden again with ignore, so if we get this error we will raise
 
         else:
             raise
 
+
+# can be used to filter cells with low expression
+def filterCells(adata, minCounts=50):
+    return sc.pp.filter_cells(adata, min_counts=minCounts)
+
+
+# can be used to filter genes that are expressed in too few cells
+def filterGenes(adata, minCells=10):
+    return sc.pp.filter_genes(adata, min_cells=minCells)
+
+
+# can be used to scale gene expression. IE Clip values that exceed 10 ('max value') standard deviations
+def scale(adata, maxValue=10):
+    return sc.pp.scale(adata, max_value=maxValue)
 # endregion
 
 
@@ -200,41 +284,84 @@ def leiden(adata, ignore=False):
 # takes in adata and a list of colors / filters IE ["leiden", "n_counts"]
 #
 # must setup adata by running adataSetup before this will work
-def spatialScatter(adata, graphs, show=True, colors=None):
+def spatialScatter(adata, graphs, show=True, colors=None, libraryID=None):
     # default leiden color initialization
-    for color in graphs:
-        if color.lower() == "leiden":  # check if leiden is in colors
-            try:  # see if the leiden_colors are already set
-                defaultColors = adata.uns['leiden_colors']  # does nothing, as this is an error test
-                break
-
-            except KeyError:
-                pass
-
-            # if not, set them
-            colorLength = len(testAdata.obs["leiden"].value_counts())
-
-            if colors is None:
-                leidenColors = getColors()[0]
-
-            else:
-                leidenColors = colors
-
-            while len(leidenColors) > colorLength:
-                leidenColors.pop(-1)
-
-            adata.uns['leiden_colors'] = leidenColors
+    for graph in graphs:
+        if graph.lower() == "leiden":  # check if leiden is in colors
+            leidenColorInit(adata=adata, colors=colors)
 
     sq.pl.spatial_scatter(
         adata,
         shape=None,
         color=graphs,
+        library_id=libraryID,
     )
 
     if show:
         plt.show()
 
     return
+
+
+# default leiden color initialization
+def leidenColorInit(adata, colors=None):
+    # check if leiden colors have already been set
+    currentLeidenColors = getLeidenColors(adata=adata)
+
+    # if they are set, and we aren't overriding them
+    if currentLeidenColors is not None and colors is None:
+        colors = currentLeidenColors
+
+    colorLength = len(adata.obs["leiden"].value_counts())
+
+    if colors is None:
+        # get the default color set
+        leidenColors = getColors('leiden_generated_random_3.txt')
+
+    else:
+        leidenColors = colors
+
+    if len(leidenColors) < colorLength:
+        print("Too few colors in palette! Generating and saving a longer one now!")
+        leidenColors = createPalette(colorLength, save=True, log=True)
+
+    if len(leidenColors) > colorLength:
+        print("Too many colors in palette! Automatically reducing size now!")
+
+    while len(leidenColors) > colorLength:
+        leidenColors.pop(-1)
+
+    return setLeidenColors(adata=adata, colors=leidenColors)
+
+
+# sets the leiden colors based on given colors. If no colors, we generate them ourselves.
+def setLeidenColors(adata, colors=None, length=200):
+    if colors is None:
+        print("No colors given, generating and saving now!")
+        leidenColors = createPalette(length=length, save=True, log=True)
+
+        adata.uns['leiden_colors'] = leidenColors
+        return leidenColors
+
+    else:
+        adata.uns['leiden_colors'] = colors
+        return colors
+
+
+def getLeidenColors(adata):
+    try:
+        # check for default leiden_colors of '#808080' for each item
+        for color in adata.uns['leiden_colors']:
+            if str(color) != "#808080":
+                # print(adata.uns['leiden_colors'])
+                return adata.uns['leiden_colors']
+
+        # print(None)
+        return None
+
+    except KeyError:
+        # print(None)
+        return None
 
 
 def showPlots():
@@ -244,31 +371,84 @@ def showPlots():
 # search for a 'colors' directory which contains the following file names
 # defaults to the current working dir.
 # can pass in a custom file
-def getColors(color_file=None):
-    # note: import color files that I have created
+# defaults to searching in the 'colors' directory
+def getColors(color_file):
+    # search for the given file
     color_path = str(os.getcwd()).replace('\\', '/') + '/'
-
     color_path = searchFiles(color_path, 'colors')
 
-    if color_file is not None:
-        color_path = color_file
+    # read the colors from the file and return them
+    current_color_path = color_path + '/' + color_file
+    with open(current_color_path, "r") as color_file:
+        colors = color_file.read().split('\n')
 
-    color_file_1 = 'leiden_color_set_1_gradient.csv'
-    color_file_2 = 'leiden_color_set_1_random.csv'
-    color_file_3 = 'leiden_color_set_2_random.csv'
-    color_file_4 = 'leiden_color_set_3_random.csv'
+    return colors
 
-    color_files = [color_file_1, color_file_2, color_file_3, color_file_4]
-    colorData = []
 
-    for file in color_files:
-        current_color_path = color_path + '/' + file
-        with open(current_color_path, "r") as color_file:
-            colors = color_file.read().split('\n')
+# creates a random color palette of given length
+# saves this color palette in 'colors' directory
+def createPalette(length, save=False, log=True):
+    if type(length) != int:
+        raise TypeError("length must be of type int")
 
-        colorData.append(colors)
+    colors = []
+    i = 0
+    while i < length:
+        color = random.randrange(0, 2**24)
+        hexColor = hex(color)
 
-    return colorData
+        if len(str(hexColor)) != 8:
+            continue
+
+        stdColor = "#" + str(hexColor[2:]).upper()
+        colors.append(stdColor)
+
+        i += 1
+
+    # write to colors file
+    if save:
+        colors_dir = searchFiles(os.getcwd() + '\\', 'colors')
+
+        if colors_dir is not None:
+            # get number for save file
+            color_files = os.listdir(colors_dir)
+            # print(color_files)
+
+            # search through the files so that we can give the generated colors the proper number
+            file_num = 1
+            save_file_template = 'leiden_generated_random_num.txt'
+            for i in range(len(color_files)):
+                # check through these files to see if any are auto generated, if so get the biggest file num
+                if color_files[i].find(save_file_template.replace("num.txt", '')) != -1:
+                    # get the file number 'num' from the currently generated files
+                    current_file_num = color_files[i].replace("leiden_generated_random_", '')
+                    current_file_num = int(current_file_num.replace(".txt", ''))
+
+                    # prevents file duplication and means we create a file_num bigger than existing one
+                    if current_file_num >= file_num:
+                        file_num = current_file_num
+                        file_num += 1
+
+            save_file_name = save_file_template.replace("num", str(file_num))
+
+            # save the file
+            save_file = colors_dir + '\\' + save_file_name
+            if log: print("saving to: {}".format(save_file))
+
+            file_content = ""
+            for color in colors:
+                file_content += str(color) + '\n'
+
+            file_content = file_content[:-1]  # remove the last '\n' from the file_content
+            # print(file_content)
+
+            with open(save_file, 'x') as f:
+                f.write(file_content)
+
+        else:
+            raise FileNotFoundError('"colors" directory not found in current working directory. Can not save!')
+
+    return colors
 
 
 # searches a provided directory and subdirectories for a file or dir
@@ -321,7 +501,7 @@ if __name__ == "__main__":
     print(testCode)
     # """
 
-    # """
+    """
     # note: readVizgen(data_path) tests
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
     transformation_path = 'C:/Users/scrouse2/Crouse_Work_Files/PyCharm_Projects/EasySQ/'
@@ -349,6 +529,30 @@ if __name__ == "__main__":
     print("found test")
     result = searchFiles(path, 'roi_metadata0_cat1.bin')
     print("result: {}\n\n".format(result))
+    # """
+
+    # """
+    # note: color palette creation testing
+    print("create palette")
+    palette = createPalette(200, save=True)
+    print(palette)
+
+    # note: get colors testing
+    # note: I like random_1, random_2, random_3
+    print("get colors")
+    testColors = getColors("leiden_generated_random_1.txt")
+    print(testColors)
+
+    # note: get and set LeidenColors testing
+    path = 'F:/sunlabmerfishdata/QSFL01222023/'
+    transformation_path = 'C:/Users/scrouse2/Crouse_Work_Files/PyCharm_Projects/EasySQ/'
+    testAdata = readVizgen(path, transform_path=transformation_path)
+    print(testAdata)
+
+    setLeidenColors(adata=testAdata, colors=testColors)
+    # setLeidenColors(adata=testAdata)
+    print(getLeidenColors(adata=testAdata))
+
     # """
 
     # todo implement clustering

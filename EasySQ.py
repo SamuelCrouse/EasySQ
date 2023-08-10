@@ -6,9 +6,9 @@
 
 # python imports
 
-
 # my imports
 import EasySQTools as tools
+import time
 
 
 class Analysis:
@@ -47,6 +47,7 @@ class Analysis:
 
     def setAdata(self, adata):
         self.adata = adata
+
     # endregion
 
     ####################################################################################################################
@@ -61,6 +62,7 @@ class Analysis:
 
     def getAdata(self):
         return self.adata
+
     # endregion
 
     ####################################################################################################################
@@ -73,8 +75,77 @@ class Analysis:
     def availableGraphs(self, log=True):
         return tools.availableGraphs(self.getAdata(), log=log)
 
-    def spatialScatter(self, graphs, show=True, colors=None):
-        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, colors=colors)
+    def spatialScatter(self, graphs, show=True, colors=None, libraryID=None):
+        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, colors=colors, libraryID=libraryID)
+
+    # runs the adata setup and basic analysis tools for the user
+    def adataSetup(self):
+        return tools.adataSetup(self.getAdata())
+
+    # adata functions
+    # calculate qc metrics
+    def qcMetrics(self, percentTop=(50, 100)):
+        return tools.qcMetrics(self.getAdata(), percentTop)
+
+    def highlyVariableGenes(self, nTopGenes=4000):
+        return tools.highlyVariableGenes(self.getAdata(), nTopGenes)
+
+    def normalizeTotal(self):
+        return tools.normalizeTotal(self.getAdata())
+
+    def log1p(self):
+        return tools.log1p(self.getAdata())
+
+    def pp_pca(self):
+        return tools.pp_pca(self.getAdata())
+
+    def tl_pca(self, svdSolver="arpack"):
+        return tools.tl_pca(self.getAdata(), svdSolver=svdSolver)
+
+    def neighbors(self):
+        return tools.neighbors(self.getAdata())
+
+    # uses the sc.tl.umap function to calculate umap data
+    def tl_umap(self):
+        return tools.tl_umap(self.getAdata())
+
+    def clustering(self):
+        pass
+
+    def leiden(self, resolution=1.0):
+        return tools.leiden(self.getAdata(), resolution=resolution)
+
+    # can be used to filter cells with low expression
+    def filterCells(self, minCounts=50):
+        return tools.filterCells(self.getAdata(), minCounts=minCounts)
+
+    # can be used to filter genes that are expressed in too few cells
+    def filterGenes(self, minCells=10):
+        return tools.filterGenes(self.getAdata(), minCells=minCells)
+
+    # can be used to scale gene expression. IE Clip values that exceed 10 ('max value') standard deviations
+    def scale(self, maxValue=10):
+        return tools.scale(self.getAdata(), maxValue=maxValue)
+
+    # uses the sc.pl.umap function plot a umap
+    def pl_umap(self, graphs=["leiden"], size=5):
+        return tools.pl_umap(self.getAdata(), graphs=graphs, size=size)
+
+    def assignCellTypes(self):
+        return tools.assignCellTypes(self.getAdata())
+
+    def spatialNeighbors(self, coordType="generic", spatialKey="spatial"):
+        return tools.spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey)
+
+    # calculate nhoodEnrichment
+    def gr_nhoodEnrichment(self, clusterKey="leiden"):
+        return tools.gr_nhoodEnrichment(adata=self.getAdata(), clusterKey=clusterKey)
+
+    # plot nhoodEnrichment data
+    def pl_nhoodEnrichment(self, plotNow=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+                           figsize=(5, 5)):
+        tools.pl_nhoodEnrichment(adata=self.getAdata(), plotNow=plotNow, clusterKey=clusterKey, method=method,
+                                 cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
 
     # endregion
 
@@ -96,10 +167,58 @@ class Analysis:
 
 if __name__ == "__main__":
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
-
     esqAnalysis = Analysis(data_path=path)
     esqAnalysis.print()
 
     esqAnalysis.availableGraphs()
-    esqAnalysis.spatialScatter('Th')
 
+    print(esqAnalysis.qcMetrics(percentTop=(10, 50, 100)))
+
+    esqAnalysis.filterCells(minCounts=50)
+    esqAnalysis.filterGenes(minCells=10)
+    esqAnalysis.leiden(resolution=0.5)
+    esqAnalysis.spatialScatter(graphs=['leiden'])
+
+
+    # todo implement these tools as class functions
+    testColors = tools.getColors("leiden_generated_random_2.txt")
+    tools.setLeidenColors(adata=esqAnalysis.getAdata(), colors=testColors)
+
+
+    time.sleep(10000)
+
+    esqAnalysis.availableGraphs()
+
+    print("normalize")
+    esqAnalysis.normalizeTotal()
+    esqAnalysis.log1p()
+    esqAnalysis.scale(maxValue=10)
+
+    print("tl pca")
+    esqAnalysis.tl_pca()
+    print("neighbors")
+    esqAnalysis.neighbors()
+    print("tl umap")
+    esqAnalysis.tl_umap()
+    print("leiden")
+    esqAnalysis.leiden(resolution=1.5)
+
+    print("pl umap")
+
+    esqAnalysis.availableGraphs()
+
+    esqAnalysis.pl_umap()
+
+    esqAnalysis.spatialScatter(graphs=['leiden'])
+
+    # esqAnalysis.spatialScatter(['Mal', 'Stmn2', 'n_counts'])
+
+    # spatial distributions of cells
+    # esqAnalysis.spatialScatter(graphs=['leiden'], libraryID='spatial')
+
+    print(esqAnalysis.assignCellTypes())
+
+    # neighborhood enrichment
+    esqAnalysis.spatialNeighbors()
+    esqAnalysis.gr_nhoodEnrichment()
+    esqAnalysis.pl_nhoodEnrichment()
