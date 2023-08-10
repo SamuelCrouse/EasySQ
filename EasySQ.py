@@ -146,8 +146,14 @@ class Analysis:
                            figsize=(5, 5)):
         tools.pl_nhoodEnrichment(adata=self.getAdata(), plotNow=plotNow, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
-
     # endregion
+
+    # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.
+    # If it isn't found, an error will be thrown.
+    def setLeidenColors(self, color_file):
+        leidenColors = tools.getColors(color_file=color_file)
+        tools.setLeidenColors(adata=self.getAdata(), colors=leidenColors)
+        return leidenColors
 
     ####################################################################################################################
     ####################################################################################################################
@@ -176,14 +182,11 @@ if __name__ == "__main__":
 
     esqAnalysis.filterCells(minCounts=50)
     esqAnalysis.filterGenes(minCells=10)
-    esqAnalysis.leiden(resolution=0.5)
-    esqAnalysis.spatialScatter(graphs=['leiden'])
 
+    esqAnalysis.setLeidenColors(color_file="leiden_generated_random_2.txt")
+    esqAnalysis.leiden(resolution=1)
 
-    # todo implement these tools as class functions
-    testColors = tools.getColors("leiden_generated_random_2.txt")
-    tools.setLeidenColors(adata=esqAnalysis.getAdata(), colors=testColors)
-
+    esqAnalysis.spatialScatter(graphs=["leiden"])
 
     time.sleep(10000)
 
@@ -210,11 +213,6 @@ if __name__ == "__main__":
     esqAnalysis.pl_umap()
 
     esqAnalysis.spatialScatter(graphs=['leiden'])
-
-    # esqAnalysis.spatialScatter(['Mal', 'Stmn2', 'n_counts'])
-
-    # spatial distributions of cells
-    # esqAnalysis.spatialScatter(graphs=['leiden'], libraryID='spatial')
 
     print(esqAnalysis.assignCellTypes())
 
