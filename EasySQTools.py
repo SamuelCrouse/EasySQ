@@ -12,10 +12,12 @@ import matplotlib.pyplot as plt
 import warnings
 import pandas as pd
 from copy import deepcopy
+import seaborn as sns
 
 logging.captureWarnings(True)
 import squidpy as sq
 import scanpy as sc
+
 logging.captureWarnings(False)
 
 
@@ -48,11 +50,11 @@ def createCode(codeLength):
 #                         transform_path>leads to images>.csv
 # 'images' should not be listed in any of the passed arguments
 def readVizgen(data_path, transform_path=None, transform_file='micron_to_mosaic_pixel_transform.csv'):
-    meta_data_path = 'cell_metadata.csv'
-    cell_by_gene_path = 'cell_by_gene.csv'
+    meta_data_path = 'cell_metadata'
+    cell_by_gene_path = 'cell_by_gene'
 
-    meta_data_file = searchFiles(data_path, meta_data_path)
-    cell_by_gene_file = searchFiles(data_path, cell_by_gene_path)
+    meta_data_file = searchFiles(data_path, meta_data_path, loose=True)
+    cell_by_gene_file = searchFiles(data_path, cell_by_gene_path, loose=True)
 
     foundMetaData = False
     foundCellByGene = False
@@ -106,7 +108,7 @@ def adataSetup(adata):
 
     print("\nrunning a bunch of calculations...")
     print("layers...")
-    adata.layers["counts"] = adata.X.copy()
+    layers(adata)
     print("\nhighly variable genes...")
     highlyVariableGenes(adata)
     print("\nnormalize total...")
@@ -130,12 +132,13 @@ def adataSetup(adata):
 
 
 # region adataSetup functions
-def qcMetrics(adata, percentTop=(50, 100)):
+# calculates quality control metrics and returns the percent of genes unassigned
+def qcMetrics(adata, percentTop=(50, 100), inplace=True):
     try:
         adata.var_names_make_unique()
         adata.var["mt"] = adata.var_names.str.startswith("mt-")
 
-        sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True, qc_vars=["mt"])
+        sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=inplace, qc_vars=["mt"])
         perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
 
         return perUnassigned
@@ -143,18 +146,23 @@ def qcMetrics(adata, percentTop=(50, 100)):
     except:  # yes, I know it's bad to do this.
         print("unknown error, running without qc_vars")
 
-    sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True)
+    sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=inplace)
     perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
 
     return perUnassigned
+
+
+def layers(adata):
+    adata.layers["counts"] = adata.X.copy()
+    return
 
 
 def highlyVariableGenes(adata, nTopGenes=4000):
     return sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=nTopGenes)
 
 
-def normalizeTotal(adata):
-    return sc.pp.normalize_total(adata)
+def normalizeTotal(adata, inplace=True):
+    return sc.pp.normalize_total(adata, inplace=inplace)
 
 
 def log1p(adata):
@@ -179,21 +187,41 @@ def tl_umap(adata):
 
 
 # UMAP plot function
-def pl_umap(adata, graphs=["leiden"], size=5):
-    # default leiden color initialization
-    for graph in graphs:
-        if graph.lower() == "leiden":  # check if leiden is in colors
-            leidenColorInit(adata=adata)
+def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
+    loopForColors = True
+    while loopForColors:
+        print("\n\npl_umap before l colors! {}".format(getLeidenColors(adata)))
 
-    try:
-        return sc.pl.umap(adata, color=graphs, size=size)
+        # try catch for leiden existence
+        try:
+            sc.pl.umap(adata, color=graphs, size=size, wspace=wspace, show=False)
 
-    except KeyError as e:
-        e = str(e).strip().replace("'", '')
-        catchStr = 'Could not find key leiden in .var_names or .obs.columns.'
+        except KeyError as e:
+            e = str(e).strip().replace("'", '')
+            catchStr = 'Could not find key leiden in .var_names or .obs.columns.'
 
-        if e == catchStr:
-            raise KeyError("Could not find key leiden in .var_names or .obs.columns! Please run leiden() first!")
+            if e == catchStr:
+                raise KeyError("Could not find key leiden in .var_names or .obs.columns! Please run leiden() first!")
+
+        print("\n\npl_umap after l colors! {}".format(getLeidenColors(adata)))
+
+        # set the leiden colors and regenerate if no colors have been set
+        if getLeidenColors(adata) is not None:
+            loopForColors = False
+
+            if show:
+                plt.show()
+
+        else:
+            # clear the none colored graph
+            plt.close()
+
+            # default leiden color initialization
+            for graph in graphs:
+                if graph.lower() == "leiden":  # check if leiden is in colors
+                    leidenColorInit(adata=adata)
+
+    return
 
 
 def clustering(adata):
@@ -225,8 +253,8 @@ def assignCellTypes(adata):
 
 
 # calculate spatial neighbors data
-def spatialNeighbors(adata, coordType="generic", spatialKey="spatial"):
-    return sq.gr.spatial_neighbors(adata=adata, coord_type=coordType, spatial_key=spatialKey)
+def spatialNeighbors(adata, coordType="generic", spatialKey="spatial", delaunay=False):
+    return sq.gr.spatial_neighbors(adata=adata, coord_type=coordType, spatial_key=spatialKey, delaunay=delaunay)
 
 
 # calculate nhoodEnrichment
@@ -235,12 +263,12 @@ def gr_nhoodEnrichment(adata, clusterKey="leiden"):
 
 
 # plot nhoodEnrichment data: No return value
-def pl_nhoodEnrichment(adata, plotNow=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+def pl_nhoodEnrichment(adata, show=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
                        figsize=(5, 5)):
     sq.pl.nhood_enrichment(adata=adata, cluster_key=clusterKey, method=method, cmap=cmap, vmin=vmin,
                            vmax=vmax, figsize=figsize)
 
-    if plotNow:
+    if show:
         plt.show()
 
 
@@ -277,6 +305,45 @@ def filterGenes(adata, minCells=10):
 # can be used to scale gene expression. IE Clip values that exceed 10 ('max value') standard deviations
 def scale(adata, maxValue=10):
     return sc.pp.scale(adata, max_value=maxValue)
+
+
+# plots transcript data
+# requires running of qc metrics
+def plotTranscripts(adata, show=True, figsize=(15, 4)):
+    fig, axs = plt.subplots(1, 4, figsize=figsize)
+
+    axs[0].set_title("Total transcripts per cell")
+    sns.histplot(
+        adata.obs["total_counts"],
+        kde=False,
+        ax=axs[0],
+    )
+
+    axs[1].set_title("Unique transcripts per cell")
+    sns.histplot(
+        adata.obs["n_genes_by_counts"],
+        kde=False,
+        ax=axs[1],
+    )
+
+    axs[2].set_title("Transcripts per FOV")
+    sns.histplot(
+        adata.obs.groupby("fov").sum()["total_counts"],
+        kde=False,
+        ax=axs[2],
+    )
+
+    axs[3].set_title("Volume of segmented cells")
+    sns.histplot(
+        adata.obs["volume"],
+        kde=False,
+        ax=axs[3],
+    )
+
+    if show:
+        plt.show()
+
+
 # endregion
 
 
@@ -284,21 +351,36 @@ def scale(adata, maxValue=10):
 # takes in adata and a list of colors / filters IE ["leiden", "n_counts"]
 #
 # must setup adata by running adataSetup before this will work
-def spatialScatter(adata, graphs, show=True, colors=None, libraryID=None):
-    # default leiden color initialization
-    for graph in graphs:
-        if graph.lower() == "leiden":  # check if leiden is in colors
-            leidenColorInit(adata=adata, colors=colors)
+def spatialScatter(adata, graphs, show=False, colors=None, libraryID=None, wspace=0.4):
+    loopForColors = True
+    while loopForColors:
+        print("\n\nsp s before l colors! {}".format(getLeidenColors(adata)))
 
-    sq.pl.spatial_scatter(
-        adata,
-        shape=None,
-        color=graphs,
-        library_id=libraryID,
-    )
+        sq.pl.spatial_scatter(
+            adata,
+            shape=None,
+            color=graphs,
+            library_id=libraryID,
+            wspace=wspace,
+        )
 
-    if show:
-        plt.show()
+        print("\n\nsp s after l colors! {}".format(getLeidenColors(adata)))
+
+        # set the leiden colors and regenerate if no colors have been set
+        if getLeidenColors(adata) is not None:
+            loopForColors = False
+
+            if show:
+                plt.show()
+
+        else:
+            # clear the none colored graph
+            plt.close()
+
+            # default leiden color initialization
+            for graph in graphs:
+                if graph.lower() == "leiden":  # check if leiden is in colors
+                    leidenColorInit(adata=adata, colors=colors)
 
     return
 
@@ -394,7 +476,7 @@ def createPalette(length, save=False, log=True):
     colors = []
     i = 0
     while i < length:
-        color = random.randrange(0, 2**24)
+        color = random.randrange(0, 2 ** 24)
         hexColor = hex(color)
 
         if len(str(hexColor)) != 8:
@@ -452,7 +534,8 @@ def createPalette(length, save=False, log=True):
 
 
 # searches a provided directory and subdirectories for a file or dir
-def searchFiles(data_path, fileToFind):
+# loose=bool lets us search for a name part instead of a full file name
+def searchFiles(data_path, fileToFind, loose=False):
     data_path = copy.deepcopy(data_path)
     fileToFind = copy.deepcopy(fileToFind)
     dirList = os.listdir(data_path)
@@ -460,12 +543,16 @@ def searchFiles(data_path, fileToFind):
     dirs = []
     for file in dirList:
         file = str(file)
-        # print(file)
 
-        if file == str(fileToFind):
-            return data_path + file
+        if loose:
+            if file.find(str(fileToFind)) != -1:
+                return data_path + file
 
-        elif file.find('.') == -1:  # this is a directory
+        else:
+            if file == str(fileToFind):
+                return data_path + file
+
+        if file.find('.') == -1:  # this is a directory
             dirs.append(file)
 
     # print(dirs)
@@ -474,7 +561,7 @@ def searchFiles(data_path, fileToFind):
         # print(dir)
         new_path = data_path + dir + '/'
 
-        returnVal = searchFiles(new_path, fileToFind)
+        returnVal = searchFiles(new_path, fileToFind, loose=loose)
 
         if returnVal is not None:
             return returnVal
@@ -495,6 +582,8 @@ def availableGraphs(adata, log=True):
 
 # tests for EasySQ.py
 if __name__ == "__main__":
+    pass
+
     """
     # note: createCode(codeLength) tests
     testCode = createCode(8)
@@ -529,9 +618,25 @@ if __name__ == "__main__":
     print("found test")
     result = searchFiles(path, 'roi_metadata0_cat1.bin')
     print("result: {}\n\n".format(result))
+
+    # loose testing
+    path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+    print(path)
+
+    meta_data_path_test = 'cell_metadata'
+    cell_by_gene_path_test = 'cell_by_gene'
+
+    # should find this test file
+    print("found test")
+    result = searchFiles(path, fileToFind=meta_data_path_test, loose=True)
+    print("result: {}\n\n".format(result))
+
+    print("found test")
+    result = searchFiles(path, fileToFind=cell_by_gene_path_test, loose=True)
+    print("result: {}\n\n".format(result))
     # """
 
-    # """
+    """
     # note: color palette creation testing
     print("create palette")
     palette = createPalette(200, save=True)

@@ -75,8 +75,10 @@ class Analysis:
     def availableGraphs(self, log=True):
         return tools.availableGraphs(self.getAdata(), log=log)
 
-    def spatialScatter(self, graphs, show=True, colors=None, libraryID=None):
-        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, colors=colors, libraryID=libraryID)
+    # plot a spatial scatter. use colorInit to generate a custom color palette by default
+    def spatialScatter(self, graphs, colorInit=False, show=False, colors=None, libraryID=None, wspace=0.4):
+        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show,
+                                    colors=colors, libraryID=libraryID, wspace=wspace)
 
     # runs the adata setup and basic analysis tools for the user
     def adataSetup(self):
@@ -84,14 +86,17 @@ class Analysis:
 
     # adata functions
     # calculate qc metrics
-    def qcMetrics(self, percentTop=(50, 100)):
-        return tools.qcMetrics(self.getAdata(), percentTop)
+    def qcMetrics(self, percentTop=(50, 100), inplace=True):
+        return tools.qcMetrics(self.getAdata(), percentTop, inplace=inplace)
+
+    def layers(self):
+        return tools.layers(self.getAdata())
 
     def highlyVariableGenes(self, nTopGenes=4000):
         return tools.highlyVariableGenes(self.getAdata(), nTopGenes)
 
-    def normalizeTotal(self):
-        return tools.normalizeTotal(self.getAdata())
+    def normalizeTotal(self, inplace=True):
+        return tools.normalizeTotal(self.getAdata(), inplace=inplace)
 
     def log1p(self):
         return tools.log1p(self.getAdata())
@@ -127,24 +132,28 @@ class Analysis:
     def scale(self, maxValue=10):
         return tools.scale(self.getAdata(), maxValue=maxValue)
 
-    # uses the sc.pl.umap function plot a umap
-    def pl_umap(self, graphs=["leiden"], size=5):
-        return tools.pl_umap(self.getAdata(), graphs=graphs, size=size)
+    def plotTranscripts(self, show=True, figsize=(15, 4)):
+        return tools.plotTranscripts(self.getAdata(), show=show, figsize=figsize)
+
+    # uses the sc.pl.umap function plot a umap. Use colorInit to generate a custom color palette by default
+    def pl_umap(self, graphs=["leiden"], show=False, colorInit=False, size=None, wspace=0.4):
+        return tools.pl_umap(self.getAdata(), graphs=graphs, show=show, size=size, wspace=wspace)
 
     def assignCellTypes(self):
         return tools.assignCellTypes(self.getAdata())
 
-    def spatialNeighbors(self, coordType="generic", spatialKey="spatial"):
-        return tools.spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey)
+    def spatialNeighbors(self, coordType="generic", spatialKey="spatial", delaunay=False):
+        return tools.spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey,
+                                      delaunay=delaunay)
 
     # calculate nhoodEnrichment
     def gr_nhoodEnrichment(self, clusterKey="leiden"):
         return tools.gr_nhoodEnrichment(adata=self.getAdata(), clusterKey=clusterKey)
 
     # plot nhoodEnrichment data
-    def pl_nhoodEnrichment(self, plotNow=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+    def pl_nhoodEnrichment(self, show=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
                            figsize=(5, 5)):
-        tools.pl_nhoodEnrichment(adata=self.getAdata(), plotNow=plotNow, clusterKey=clusterKey, method=method,
+        tools.pl_nhoodEnrichment(adata=self.getAdata(), show=show, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
     # endregion
 
@@ -154,6 +163,9 @@ class Analysis:
         leidenColors = tools.getColors(color_file=color_file)
         tools.setLeidenColors(adata=self.getAdata(), colors=leidenColors)
         return leidenColors
+
+    def showPlots(self):
+        tools.showPlots()
 
     ####################################################################################################################
     ####################################################################################################################
