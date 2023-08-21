@@ -5,6 +5,7 @@
 # python imports
 import matplotlib.pyplot as plt
 import os
+import time
 
 # my imports
 import EasySQ as eSQ
@@ -25,6 +26,8 @@ import squidpy as sq
 
 
 def esq_demo_1():
+    t0 = time.time()
+
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
     path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
     esq = eSQ.Analysis(data_path=path)
@@ -52,20 +55,33 @@ def esq_demo_1():
     print("umap")
     esq.tl_umap()
     print("leiden")
-    print("\n\ncolors before leiden: {}".format(tools.getLeidenColors(esq.getAdata())))
-    esq.leiden(resolution=10)
-    print("\n\ncolors after leiden: {}".format(tools.getLeidenColors(esq.getAdata())))
+    esq.leiden(resolution=1)
 
     print("pl_UMAP")
-
     esq.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
     esq.spatialScatter(graphs=["leiden"])
-    esq.showPlots()
+    # esq.showPlots()
 
     print("spatial neighbors")
     esq.spatialNeighbors(delaunay=True)
 
-    print(tools.getLeidenColors(esq.getAdata()))
+    print("compute centrality scores")
+    esq.gr_centrality_scores()
+    esq.pl_centrality_scores(figsize=(16, 5))
+
+    # esq.showPlots()
+
+    print("co-occurrence probability")
+    adata_subsample = sc.pp.subsample(esq.getAdata(), fraction=0.5, copy=True)
+    esq.gr_co_occurrence(adata=adata_subsample, cluster_key="leiden")
+    esq.pl_co_occurrence(adata=adata_subsample, cluster_key="leiden", clusters="12", figsize=(10, 10))
+
+    # esq.spatialScatter(adata_subsample, colors=["leiden"], size=2)
+
+    esq.showPlots()
+    t1 = time.time()
+    totalTime = t1 - t0
+    print("time elapsed: {}".format(totalTime))
 
 
 def sq_demo_1():
@@ -141,6 +157,35 @@ def sq_demo_1():
             "leiden",
         ],
         wspace=0.4,
+    )
+
+    # plt.show()
+
+    sq.gr.spatial_neighbors(adata, coord_type="generic", delaunay=True)
+
+    sq.gr.centrality_scores(adata, cluster_key="leiden")
+
+    sq.pl.centrality_scores(adata, cluster_key="leiden", figsize=(16, 5))
+
+    plt.show()
+
+    adata_subsample = sc.pp.subsample(adata, fraction=0.5, copy=True)
+
+    sq.gr.co_occurrence(
+        adata_subsample,
+        cluster_key="leiden",
+    )
+    sq.pl.co_occurrence(
+        adata_subsample,
+        cluster_key="leiden",
+        clusters="12",
+        figsize=(10, 10),
+    )
+    sq.pl.spatial_scatter(
+        adata_subsample,
+        color="leiden",
+        shape=None,
+        size=2,
     )
 
     plt.show()

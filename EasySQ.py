@@ -76,9 +76,10 @@ class Analysis:
         return tools.availableGraphs(self.getAdata(), log=log)
 
     # plot a spatial scatter. use colorInit to generate a custom color palette by default
-    def spatialScatter(self, graphs, colorInit=False, show=False, colors=None, libraryID=None, wspace=0.4):
+    def spatialScatter(self, graphs, colorInit=False, show=False, colors=None, libraryID=None, wspace=0.4, size=None,
+                       shape=None):
         return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show,
-                                    colors=colors, libraryID=libraryID, wspace=wspace)
+                                    colors=colors, libraryID=libraryID, wspace=wspace, size=size, shape=None)
 
     # runs the adata setup and basic analysis tools for the user
     def adataSetup(self):
@@ -155,6 +156,31 @@ class Analysis:
                            figsize=(5, 5)):
         tools.pl_nhoodEnrichment(adata=self.getAdata(), show=show, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
+
+    # compute the centrality scores
+    def gr_centrality_scores(self, cluster_key="leiden"):
+        return tools.gr_centrality_scores(adata=self.getAdata(), cluster_key=cluster_key)
+
+    # graph the centrality scores
+    def pl_centrality_scores(self, cluster_key="leiden", figsize=None):
+        return tools.pl_centrality_scores(adata=self.getAdata(), cluster_key=cluster_key, figsize=figsize)
+
+    # compute the co-occurrence probability
+    def gr_co_occurrence(self, adata=None, cluster_key="leiden"):
+        if adata is None:
+            return tools.gr_co_occurrence(adata=self.getAdata(), cluster_key=cluster_key)
+
+        else:
+            return tools.gr_co_occurrence(adata=adata, cluster_key=cluster_key)
+
+    # graph the co-occurrence probability
+    def pl_co_occurrence(self, adata=None, cluster_key="leiden", clusters="12", figsize=None):
+        if adata is None:
+            return tools.pl_co_occurrence(adata=self.getAdata(), cluster_key=cluster_key, clusters=clusters,
+                                          figsize=figsize)
+
+        else:
+            return tools.pl_co_occurrence(adata=adata, cluster_key=cluster_key, clusters=clusters, figsize=figsize)
     # endregion
 
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.

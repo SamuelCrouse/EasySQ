@@ -190,8 +190,6 @@ def tl_umap(adata):
 def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
     loopForColors = True
     while loopForColors:
-        print("\n\npl_umap before l colors! {}".format(getLeidenColors(adata)))
-
         # try catch for leiden existence
         try:
             sc.pl.umap(adata, color=graphs, size=size, wspace=wspace, show=False)
@@ -202,8 +200,6 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
 
             if e == catchStr:
                 raise KeyError("Could not find key leiden in .var_names or .obs.columns! Please run leiden() first!")
-
-        print("\n\npl_umap after l colors! {}".format(getLeidenColors(adata)))
 
         # set the leiden colors and regenerate if no colors have been set
         if getLeidenColors(adata) is not None:
@@ -270,6 +266,26 @@ def pl_nhoodEnrichment(adata, show=True, clusterKey="leiden", method="average", 
 
     if show:
         plt.show()
+
+
+# compute the centrality scores
+def gr_centrality_scores(adata, cluster_key="leiden"):
+    return sq.gr.centrality_scores(adata=adata, cluster_key=cluster_key)
+
+
+# graph the centrality scores
+def pl_centrality_scores(adata, cluster_key="leiden", figsize=None):
+    return sq.pl.centrality_scores(adata=adata, cluster_key=cluster_key, figsize=figsize)
+
+
+# compute the co-occurrence probability
+def gr_co_occurrence(adata, cluster_key="leiden"):
+    return sq.gr.co_occurrence(adata=adata, cluster_key=cluster_key)
+
+
+# graph the co-occurrence probability
+def pl_co_occurrence(adata, cluster_key="leiden", clusters="12", figsize=None):
+    return sq.pl.co_occurrence(adata=adata, cluster_key=cluster_key, clusters=clusters, figsize=figsize)
 
 
 def leiden(adata, resolution=1.0, ignore=False):
@@ -351,20 +367,17 @@ def plotTranscripts(adata, show=True, figsize=(15, 4)):
 # takes in adata and a list of colors / filters IE ["leiden", "n_counts"]
 #
 # must setup adata by running adataSetup before this will work
-def spatialScatter(adata, graphs, show=False, colors=None, libraryID=None, wspace=0.4):
+def spatialScatter(adata, graphs, show=False, colors=None, libraryID=None, wspace=0.4, size=None, shape=None):
     loopForColors = True
     while loopForColors:
-        print("\n\nsp s before l colors! {}".format(getLeidenColors(adata)))
-
         sq.pl.spatial_scatter(
             adata,
-            shape=None,
+            shape=shape,
             color=graphs,
             library_id=libraryID,
             wspace=wspace,
+            size=size
         )
-
-        print("\n\nsp s after l colors! {}".format(getLeidenColors(adata)))
 
         # set the leiden colors and regenerate if no colors have been set
         if getLeidenColors(adata) is not None:
