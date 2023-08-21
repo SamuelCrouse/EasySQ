@@ -11,7 +11,6 @@ import time
 import EasySQ as eSQ
 import EasySQTools as tools
 
-
 # sq demo imports
 from pathlib import Path
 
