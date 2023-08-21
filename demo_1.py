@@ -78,10 +78,11 @@ def esq_demo_1():
 
     # esq.spatialScatter(adata_subsample, colors=["leiden"], size=2)
 
-    esq.showPlots()
     t1 = time.time()
     totalTime = t1 - t0
     print("time elapsed: {}".format(totalTime))
+
+    esq.showPlots()
 
 
 def sq_demo_1():
