@@ -28,11 +28,11 @@ def esq_demo_1():
     t0 = time.time()
 
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
-    path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+    # path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
     esq = eSQ.Analysis(data_path=path)
     esq.print()
 
-    perUn = esq.qcMetrics()
+    perUn = esq.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
     print("percent unassigned: {}".format(perUn))
 
     esq.plotTranscripts(show=False)
@@ -54,7 +54,9 @@ def esq_demo_1():
     print("umap")
     esq.tl_umap()
     print("leiden")
-    esq.leiden(resolution=1)
+    esq.leiden()
+
+    esq.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
     print("pl_UMAP")
     esq.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
@@ -62,20 +64,37 @@ def esq_demo_1():
     # esq.showPlots()
 
     print("spatial neighbors")
-    esq.spatialNeighbors(delaunay=True)
+    esq.gr_spatialNeighbors(delaunay=True)
 
     print("compute centrality scores")
     esq.gr_centrality_scores()
     esq.pl_centrality_scores(figsize=(16, 5))
 
-    # esq.showPlots()
-
     print("co-occurrence probability")
     adata_subsample = sc.pp.subsample(esq.getAdata(), fraction=0.5, copy=True)
-    esq.gr_co_occurrence(adata=adata_subsample, cluster_key="leiden")
-    esq.pl_co_occurrence(adata=adata_subsample, cluster_key="leiden", clusters="12", figsize=(10, 10))
+    esq.gr_co_occurrence(adata=adata_subsample)
+    esq.pl_co_occurrence(adata=adata_subsample)
 
-    # esq.spatialScatter(adata_subsample, colors=["leiden"], size=2)
+    esq.spatialScatter(adata=adata_subsample, graphs="leiden")
+
+    print("neighbors enrichment analysis")
+    esq.gr_nhoodEnrichment()
+    esq.pl_nhoodEnrichment()
+
+    esq.spatialScatter(adata=adata_subsample, graphs="leiden")
+
+    print("Ripley's statistics")
+
+    esq.gr_ripley()
+    esq.pl_ripley()
+    esq.spatialScatter(adata=adata_subsample, graphs="leiden", groups=["0", "1", "3"])
+
+    print("Moran's I score")
+    esq.gr_spatialNeighbors(adata=adata_subsample, delaunay=True)
+    esq.gr_spatialAutocorr(adata=adata_subsample)
+    adata_subsample.uns["moranI"].head(10)
+
+    esq.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Npy2r"])
 
     t1 = time.time()
     totalTime = t1 - t0
@@ -85,20 +104,27 @@ def esq_demo_1():
 
 
 def sq_demo_1():
-    print("import")
-    vizgen_dir = Path().resolve() / "tutorial_data" / "vizgen_data"
+    t0 = time.time()
 
-    adata = sq.read.vizgen(
-        path=vizgen_dir,
-        counts_file="datasets_mouse_brain_map_BrainReceptorShowcase_Slice1_Replicate1_cell_by_gene_S1R1.csv",
-        meta_file="datasets_mouse_brain_map_BrainReceptorShowcase_Slice1_Replicate1_cell_metadata_S1R1.csv",
-        transformation_file="datasets_mouse_brain_map_BrainReceptorShowcase_Slice1_Replicate1_images_micron_to_mosaic_pixel_transform.csv",
-    )
+    print("\nImporting data...")
+    vizgen_path = os.getcwd() + '\\'
+    meta_data_path = 'F:\\sunlabmerfishdata\\QSFL01222023\\cell_metadata.csv'
+    cell_by_gene_path = 'F:\\sunlabmerfishdata\\QSFL01222023\\cell_by_gene.csv'
+    transformation_file_path = 'micron_to_mosaic_pixel_transform.csv'
 
-    sc.pp.calculate_qc_metrics(adata, percent_top=(50, 100, 200, 300), inplace=True)
+    adata = sq.read.vizgen(path=vizgen_path,
+                           counts_file=cell_by_gene_path,
+                           meta_file=meta_data_path,
+                           transformation_file=transformation_file_path)
 
-    adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
+    print(adata)
 
+    print("\nCalculating QC metrics...")
+    sc.pp.calculate_qc_metrics(adata, percent_top=(50, 100, 125), inplace=True)
+    per_unassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
+    print("Percent Unassigned {}%".format(per_unassigned))
+
+    print("\nPlotting transcript and volume data...")
     fig, axs = plt.subplots(1, 4, figsize=(15, 4))
 
     axs[0].set_title("Total transcripts per cell")
@@ -129,8 +155,8 @@ def sq_demo_1():
         ax=axs[3],
     )
 
+    print("\nRunning a bunch of data calculations...")
     sc.pp.filter_cells(adata, min_counts=10)
-
     adata.layers["counts"] = adata.X.copy()
     sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=4000)
     sc.pp.normalize_total(adata, inplace=True)
@@ -140,6 +166,21 @@ def sq_demo_1():
     sc.tl.umap(adata)
     sc.tl.leiden(adata)
 
+    # set the leiden colors so the leiden pallets aren't grey
+    color_path = os.getcwd().replace('\\', '/') + '/' + 'colors/'
+    color_file = 'leiden_generated_random_3.txt'
+    color_path += color_file
+    with open(color_path, "r") as color_file:
+        colors = color_file.read().split('\n')
+
+    while len(colors) > 26:
+        colors.pop()
+
+    # you can choose either of these to run this with, you will get different colors
+    # if you change the path above you can set your own .csv of hexes
+    # adata.uns['leiden_colors'] = matplotlib.colors.CSS4_COLORS.values()
+    adata.uns['leiden_colors'] = colors
+
     sc.pl.umap(
         adata,
         color=[
@@ -148,8 +189,10 @@ def sq_demo_1():
             "leiden",
         ],
         wspace=0.4,
+        show=False,
     )
 
+    print("Visualize annotation on UMAP and spatial coordinates.")
     sq.pl.spatial_scatter(
         adata,
         shape=None,
@@ -159,15 +202,11 @@ def sq_demo_1():
         wspace=0.4,
     )
 
-    # plt.show()
-
     sq.gr.spatial_neighbors(adata, coord_type="generic", delaunay=True)
 
     sq.gr.centrality_scores(adata, cluster_key="leiden")
 
     sq.pl.centrality_scores(adata, cluster_key="leiden", figsize=(16, 5))
-
-    plt.show()
 
     adata_subsample = sc.pp.subsample(adata, fraction=0.5, copy=True)
 
@@ -187,6 +226,60 @@ def sq_demo_1():
         shape=None,
         size=2,
     )
+
+    sq.gr.nhood_enrichment(adata, cluster_key="leiden")
+
+    fig, ax = plt.subplots(1, 2, figsize=(13, 7))
+    sq.pl.nhood_enrichment(
+        adata,
+        cluster_key="leiden",
+        figsize=(8, 8),
+        title="Neighborhood enrichment adata",
+        ax=ax[0],
+    )
+    sq.pl.spatial_scatter(adata_subsample, color="leiden", shape=None, size=2, ax=ax[1])
+
+    # note: calculate ripley's statistics
+
+    fig, ax = plt.subplots(1, 2, figsize=(15, 7))
+    mode = "L"
+
+    sq.gr.ripley(adata, cluster_key="leiden", mode=mode)
+    sq.pl.ripley(adata, cluster_key="leiden", mode=mode, ax=ax[0])
+
+    sq.pl.spatial_scatter(
+        adata_subsample,
+        color="leiden",
+        groups=["0", "1", "3"],
+        shape=None,
+        size=2,
+        ax=ax[1],
+    )
+
+    # sq.gr.spatial_neighbors(adata_subsample, coord_type="generic", delaunay=True)
+    # sq.gr.spatial_autocorr(
+    #     adata_subsample,
+    #     mode="moran",
+    #     n_perms=100,
+    #     n_jobs=1,
+    # )
+    # adata_subsample.uns["moranI"].head(10)
+
+    sq.pl.spatial_scatter(
+        adata_subsample,
+        color=[
+            "Slc17a7",
+            "Npy2r",
+            "leiden"
+        ],
+        shape=None,
+        size=2,
+        img=False,
+    )
+
+    t1 = time.time()
+    totalTime = t1 - t0
+    print("time elapsed: {}".format(totalTime))
 
     plt.show()
 

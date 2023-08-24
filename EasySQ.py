@@ -76,10 +76,15 @@ class Analysis:
         return tools.availableGraphs(self.getAdata(), log=log)
 
     # plot a spatial scatter. use colorInit to generate a custom color palette by default
-    def spatialScatter(self, graphs, colorInit=False, show=False, colors=None, libraryID=None, wspace=0.4, size=None,
-                       shape=None):
-        return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show,
-                                    colors=colors, libraryID=libraryID, wspace=wspace, size=size, shape=None)
+    def spatialScatter(self, graphs, adata=None, show=False, libraryID=None, wspace=0.4, size=None,
+                       shape=None, groups=None):
+        if adata is None:
+            return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, libraryID=libraryID,
+                                        wspace=wspace, size=size, shape=shape, groups=groups)
+
+        else:
+            return tools.spatialScatter(adata=adata, graphs=graphs, show=show, libraryID=libraryID, wspace=wspace,
+                                        size=size, shape=shape, groups=groups)
 
     # runs the adata setup and basic analysis tools for the user
     def adataSetup(self):
@@ -87,8 +92,43 @@ class Analysis:
 
     # adata functions
     # calculate qc metrics
-    def qcMetrics(self, percentTop=(50, 100), inplace=True):
-        return tools.qcMetrics(self.getAdata(), percentTop, inplace=inplace)
+    def qcMetrics(self, percentTop=(50, 100)):
+        """
+            Documentation
+
+            qcMetrics() class function docs
+            =============================
+            ----
+
+            * qcMetrics class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools qcMetrics function.
+            * Calculates a number of qc metrics for the self AnnData object.
+
+            ----
+
+            Parameters:
+            ----------
+            * percentTop=(50, 100): Calculate the top % of genes. This cannot exceed size of adata columns.
+
+            Returns:
+            -------
+            * float(perUnassigned) percent unassigned genes/cells.
+
+            Examples:
+            --------
+            1. using percentTop:
+                * Given an AnnData object with n_obs × n_vars = 78329 × 483.
+                    percentTop could be equal to (1, X0, X1, 483)
+                * For example, say percentTop=(1, 50, 483)
+                * If percentTop is greater than 483, it will throw an IndexError.
+            ..
+            2. Calling qcMetrics:
+                * Create EasySQ class object and use:
+                * perUn = esq.qcMetrics()
+                    Where 'perUn' is the perUnassigned returned and default args are used.
+        """
+
+        return tools.qcMetrics(self.getAdata(), percentTop)
 
     def layers(self):
         return tools.layers(self.getAdata())
@@ -133,7 +173,7 @@ class Analysis:
     def scale(self, maxValue=10):
         return tools.scale(self.getAdata(), maxValue=maxValue)
 
-    def plotTranscripts(self, show=True, figsize=(15, 4)):
+    def plotTranscripts(self, show=False, figsize=(15, 4)):
         return tools.plotTranscripts(self.getAdata(), show=show, figsize=figsize)
 
     # uses the sc.pl.umap function plot a umap. Use colorInit to generate a custom color palette by default
@@ -143,16 +183,20 @@ class Analysis:
     def assignCellTypes(self):
         return tools.assignCellTypes(self.getAdata())
 
-    def spatialNeighbors(self, coordType="generic", spatialKey="spatial", delaunay=False):
-        return tools.spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey,
-                                      delaunay=delaunay)
+    def gr_spatialNeighbors(self, adata=None, coordType="generic", spatialKey="spatial", delaunay=False):
+        if adata is None:
+            return tools.gr_spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey,
+                                             delaunay=delaunay)
+
+        else:
+            return tools.gr_spatialNeighbors(adata=adata, coordType=coordType, spatialKey=spatialKey, delaunay=delaunay)
 
     # calculate nhoodEnrichment
     def gr_nhoodEnrichment(self, clusterKey="leiden"):
         return tools.gr_nhoodEnrichment(adata=self.getAdata(), clusterKey=clusterKey)
 
     # plot nhoodEnrichment data
-    def pl_nhoodEnrichment(self, show=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+    def pl_nhoodEnrichment(self, show=False, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
                            figsize=(5, 5)):
         tools.pl_nhoodEnrichment(adata=self.getAdata(), show=show, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
@@ -181,6 +225,22 @@ class Analysis:
 
         else:
             return tools.pl_co_occurrence(adata=adata, cluster_key=cluster_key, clusters=clusters, figsize=figsize)
+
+    # compute Ripley's statistics
+    def gr_ripley(self, cluster_key="leiden", mode="L"):
+        return tools.gr_ripley(adata=self.getAdata(), cluster_key=cluster_key, mode=mode)
+
+    # graph Ripley's statistics
+    def pl_ripley(self, cluster_key="leiden", mode="L"):
+        return tools.pl_ripley(adata=self.getAdata(), cluster_key=cluster_key, mode=mode)
+
+    def gr_spatialAutocorr(self, adata=None, mode="moran", nPerms=100, nJobs=1):
+        if adata is None:
+            tools.gr_spatialAutocorr(adata=self.getAdata(), mode=mode, nPerms=nPerms, nJobs=nJobs)
+
+        else:
+            tools.gr_spatialAutocorr(adata=adata, mode=mode, nPerms=nPerms, nJobs=nJobs)
+
     # endregion
 
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.
@@ -255,6 +315,6 @@ if __name__ == "__main__":
     print(esqAnalysis.assignCellTypes())
 
     # neighborhood enrichment
-    esqAnalysis.spatialNeighbors()
+    esqAnalysis.gr_spatialNeighbors()
     esqAnalysis.gr_nhoodEnrichment()
     esqAnalysis.pl_nhoodEnrichment()

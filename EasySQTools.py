@@ -133,12 +133,48 @@ def adataSetup(adata):
 
 # region adataSetup functions
 # calculates quality control metrics and returns the percent of genes unassigned
-def qcMetrics(adata, percentTop=(50, 100), inplace=True):
+def qcMetrics(adata, percentTop=(50, 100)):
+    """
+        Documentation
+
+        qcMetrics() ".tools" function docs
+        =============================
+        ----
+
+        * Tools function for EasySQ class function qcMetrics.
+        * Acts as a wrapper for sc.pp.calculate_qc_metrics.
+        * Calculates a number of qc metrics for an AnnData object.
+
+        ----
+
+        Parameters:
+        ----------
+        * adata: The AnnData object to calculate on.
+        * percentTop=(50, 100): Calculate the top % of genes. This cannot exceed size of adata columns.
+
+        Returns:
+        -------
+        * float(perUnassigned) percent unassigned genes/cells.
+
+        Examples:
+        --------
+        1. using percentTop:
+            * Given an AnnData object with n_obs × n_vars = 78329 × 483.
+                percentTop could be equal to (1, X0, X1, 483)
+            * For example, say percentTop=(1, 50, 483)
+            * If percentTop is greater than 483, it will throw an IndexError.
+        ..
+        2. Calling qcMetrics:
+            * "import EasySQTools as tools"
+            * tools.qcMetrics(adata)
+            * **If possible call this from its wrapper using EasySQ class "Analysis."**
+    """
+
     try:
         adata.var_names_make_unique()
         adata.var["mt"] = adata.var_names.str.startswith("mt-")
 
-        sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=inplace, qc_vars=["mt"])
+        sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True, qc_vars=["mt"])
         perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
 
         return perUnassigned
@@ -146,7 +182,7 @@ def qcMetrics(adata, percentTop=(50, 100), inplace=True):
     except:  # yes, I know it's bad to do this.
         print("unknown error, running without qc_vars")
 
-    sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=inplace)
+    sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True)
     perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
 
     return perUnassigned
@@ -249,7 +285,7 @@ def assignCellTypes(adata):
 
 
 # calculate spatial neighbors data
-def spatialNeighbors(adata, coordType="generic", spatialKey="spatial", delaunay=False):
+def gr_spatialNeighbors(adata, coordType="generic", spatialKey="spatial", delaunay=False):
     return sq.gr.spatial_neighbors(adata=adata, coord_type=coordType, spatial_key=spatialKey, delaunay=delaunay)
 
 
@@ -259,7 +295,7 @@ def gr_nhoodEnrichment(adata, clusterKey="leiden"):
 
 
 # plot nhoodEnrichment data: No return value
-def pl_nhoodEnrichment(adata, show=True, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
+def pl_nhoodEnrichment(adata, show=False, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
                        figsize=(5, 5)):
     sq.pl.nhood_enrichment(adata=adata, cluster_key=clusterKey, method=method, cmap=cmap, vmin=vmin,
                            vmax=vmax, figsize=figsize)
@@ -286,6 +322,20 @@ def gr_co_occurrence(adata, cluster_key="leiden"):
 # graph the co-occurrence probability
 def pl_co_occurrence(adata, cluster_key="leiden", clusters="12", figsize=None):
     return sq.pl.co_occurrence(adata=adata, cluster_key=cluster_key, clusters=clusters, figsize=figsize)
+
+
+# compute Ripley's statistics
+def gr_ripley(adata, cluster_key="leiden", mode="L"):
+    return sq.gr.ripley(adata, cluster_key=cluster_key, mode=mode)
+
+
+# graph Ripley's statistics
+def pl_ripley(adata, cluster_key="leiden", mode="L"):
+    return sq.pl.ripley(adata, cluster_key=cluster_key, mode=mode)
+
+
+def gr_spatialAutocorr(adata, mode="moran", nPerms=100, nJobs=1):
+    return sq.gr.spatial_autocorr(adata, mode=mode, n_perms=nPerms, n_jobs=nJobs)
 
 
 def leiden(adata, resolution=1.0, ignore=False):
@@ -325,7 +375,7 @@ def scale(adata, maxValue=10):
 
 # plots transcript data
 # requires running of qc metrics
-def plotTranscripts(adata, show=True, figsize=(15, 4)):
+def plotTranscripts(adata, show=False, figsize=(15, 4)):
     fig, axs = plt.subplots(1, 4, figsize=figsize)
 
     axs[0].set_title("Total transcripts per cell")
@@ -367,45 +417,51 @@ def plotTranscripts(adata, show=True, figsize=(15, 4)):
 # takes in adata and a list of colors / filters IE ["leiden", "n_counts"]
 #
 # must setup adata by running adataSetup before this will work
-def spatialScatter(adata, graphs, show=False, colors=None, libraryID=None, wspace=0.4, size=None, shape=None):
+def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=0.4, size=None, shape=None,
+                   groups=None):
     loopForColors = True
     while loopForColors:
-        sq.pl.spatial_scatter(
-            adata,
-            shape=shape,
-            color=graphs,
-            library_id=libraryID,
-            wspace=wspace,
-            size=size
-        )
+        try:
+            sq.pl.spatial_scatter(
+                adata,
+                shape=shape,
+                color=graphs,
+                library_id=libraryID,
+                wspace=wspace,
+                size=size,
+                groups=groups,
+            )
 
-        # set the leiden colors and regenerate if no colors have been set
-        if getLeidenColors(adata) is not None:
-            loopForColors = False
+            # set the leiden colors and regenerate if no colors have been set
+            if getLeidenColors(adata) is not None:
+                loopForColors = False
 
-            if show:
-                plt.show()
+                if show:
+                    plt.show()
 
-        else:
-            # clear the none colored graph
-            plt.close()
+            else:
+                # clear the none colored graph
+                plt.close()
 
+                # default leiden color initialization
+                for graph in graphs:
+                    if graph.lower() == "leiden":  # check if leiden is in colors
+                        leidenColorInit(adata=adata)
+
+        except ValueError:
             # default leiden color initialization
             for graph in graphs:
                 if graph.lower() == "leiden":  # check if leiden is in colors
-                    leidenColorInit(adata=adata, colors=colors)
+                    leidenColorInit(adata=adata)
 
     return
 
 
 # default leiden color initialization
-def leidenColorInit(adata, colors=None):
+def leidenColorInit(adata):
     # check if leiden colors have already been set
     currentLeidenColors = getLeidenColors(adata=adata)
-
-    # if they are set, and we aren't overriding them
-    if currentLeidenColors is not None and colors is None:
-        colors = currentLeidenColors
+    colors = currentLeidenColors
 
     colorLength = len(adata.obs["leiden"].value_counts())
 
