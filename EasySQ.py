@@ -7,6 +7,7 @@
 # python imports
 from copy import deepcopy
 import pandas as pd
+from scipy.cluster import hierarchy as sch
 
 # my imports
 import EasySQTools as tools
@@ -273,6 +274,29 @@ class Analysis:
                            figsize=(5, 5)):
         tools.pl_nhoodEnrichment(adata=self.getAdata(), show=show, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
+
+    # calculate neighborhood enrichment clusters
+    def plotNHoodEnrichmentClusters(self, nClusters=[4], method="average", size=10, figsize=(5, 5)):
+        n_clusters = nClusters
+        df_nhood_enr = pd.DataFrame(
+            self.getAdata().uns["leiden_nhood_enrichment"]["zscore"],
+            columns=self.getLeidenClusters(),
+            index=self.getLeidenClusters(),
+        )
+
+        nhood_cluster_levels = ["Level-" + str(x) for x in n_clusters]
+        linkage = sch.linkage(df_nhood_enr, method=method)
+        mat_nhood_clusters = sch.cut_tree(linkage, n_clusters=n_clusters)
+        df_cluster = pd.DataFrame(
+            mat_nhood_clusters, columns=nhood_cluster_levels, index=self.getMetaLeiden().index.tolist()
+        )
+
+        inst_level = "Level-" + str(n_clusters[0])
+        all_clusters = list(df_cluster[inst_level].unique())
+        for inst_cluster in all_clusters:
+            inst_clusters = df_cluster[df_cluster[inst_level] == inst_cluster].index.tolist()
+
+            self.spatialScatter(graphs="Cluster", groups=inst_clusters, size=size, figsize=figsize)
 
     # compute the centrality scores
     def gr_centrality_scores(self, cluster_key="leiden"):
