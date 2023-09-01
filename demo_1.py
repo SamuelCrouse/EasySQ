@@ -50,7 +50,7 @@ def esq_demo_1():
     print("pca")
     esq.pp_pca()
     print("neighbors")
-    esq.neighbors()
+    esq.pp_neighbors()
     print("umap")
     esq.tl_umap()
     print("leiden")

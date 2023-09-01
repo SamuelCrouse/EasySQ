@@ -5,6 +5,8 @@
 # Allows creation of a squidpy analysis object with built in tools
 
 # python imports
+from copy import deepcopy
+import pandas as pd
 
 # my imports
 import EasySQTools as tools
@@ -31,6 +33,19 @@ class Analysis:
         self.data_path = data_path
         self.adata = self.readVizgen(self.data_path)
 
+        # default value init
+        self.metaGene = None
+        self.commonMarkerGenes = None
+        self.dfRefPanel = None
+        self.sigLeiden = None
+        self.metaLeiden = None
+        self.leidenClusters = None
+
+        self.dfCentral = None
+        self.serCloseness = None
+        self.serDegree = None
+        self.serCluster = None
+
     # endregion constructor
 
     ####################################################################################################################
@@ -48,6 +63,36 @@ class Analysis:
     def setAdata(self, adata):
         self.adata = adata
 
+    def setMetaGene(self, value):
+        self.metaGene = value
+
+    def setCommonMarkerGenes(self, value):
+        self.commonMarkerGenes = value
+
+    def setDfRefPanel(self, value):
+        self.dfRefPanel = value
+
+    def setSigLeiden(self, value):
+        self.sigLeiden = value
+
+    def setMetaLeiden(self, value):
+        self.metaLeiden = value
+
+    def setLeidenClusters(self, value):
+        self.leidenClusters = value
+
+    def setDfCentral(self, value):
+        self.dfCentral = value
+
+    def setSerCloseness(self, value):
+        self.serCloseness = value
+
+    def setSerDegree(self, value):
+        self.serDegree = value
+
+    def setSerCluster(self, value):
+        self.serCluster = value
+
     # endregion
 
     ####################################################################################################################
@@ -63,6 +108,36 @@ class Analysis:
     def getAdata(self):
         return self.adata
 
+    def getMetaGene(self):
+        return self.metaGene
+
+    def getCommonMarkerGenes(self):
+        return self.commonMarkerGenes
+
+    def getDfRefPanel(self):
+        return self.dfRefPanel
+
+    def getSigLeiden(self):
+        return self.sigLeiden
+
+    def getMetaLeiden(self):
+        return self.metaLeiden
+
+    def getLeidenClusters(self):
+        return self.leidenClusters
+
+    def getDfCentral(self):
+        return self.dfCentral
+
+    def getSerCloseness(self):
+        return self.serCloseness
+
+    def getSerDegree(self):
+        return self.serDegree
+
+    def getSerCluster(self):
+        return self.serCluster
+
     # endregion
 
     ####################################################################################################################
@@ -77,14 +152,15 @@ class Analysis:
 
     # plot a spatial scatter. use colorInit to generate a custom color palette by default
     def spatialScatter(self, graphs, adata=None, show=False, libraryID=None, wspace=0.4, size=None,
-                       shape=None, groups=None):
+                       shape=None, groups=None, cmap=None, figsize=None):
         if adata is None:
             return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, libraryID=libraryID,
-                                        wspace=wspace, size=size, shape=shape, groups=groups)
+                                        wspace=wspace, size=size, shape=shape, groups=groups, cmap=cmap,
+                                        figsize=figsize)
 
         else:
             return tools.spatialScatter(adata=adata, graphs=graphs, show=show, libraryID=libraryID, wspace=wspace,
-                                        size=size, shape=shape, groups=groups)
+                                        size=size, shape=shape, groups=groups, cmap=cmap, figsize=figsize)
 
     # runs the adata setup and basic analysis tools for the user
     def adataSetup(self):
@@ -148,8 +224,8 @@ class Analysis:
     def tl_pca(self, svdSolver="arpack"):
         return tools.tl_pca(self.getAdata(), svdSolver=svdSolver)
 
-    def neighbors(self):
-        return tools.neighbors(self.getAdata())
+    def pp_neighbors(self):
+        return tools.pp_neighbors(self.getAdata())
 
     # uses the sc.tl.umap function to calculate umap data
     def tl_umap(self):
@@ -179,9 +255,6 @@ class Analysis:
     # uses the sc.pl.umap function plot a umap. Use colorInit to generate a custom color palette by default
     def pl_umap(self, graphs=["leiden"], show=False, colorInit=False, size=None, wspace=0.4):
         return tools.pl_umap(self.getAdata(), graphs=graphs, show=show, size=size, wspace=wspace)
-
-    def assignCellTypes(self):
-        return tools.assignCellTypes(self.getAdata())
 
     def gr_spatialNeighbors(self, adata=None, coordType="generic", spatialKey="spatial", delaunay=False):
         if adata is None:
@@ -241,6 +314,137 @@ class Analysis:
         else:
             tools.gr_spatialAutocorr(adata=adata, mode=mode, nPerms=nPerms, nJobs=nJobs)
 
+    # Reference Gene Functions (metaGene)
+    def assignReferenceCells(self):
+        # Assign marker gene metadata using reference dataset
+
+        # get the reference panel
+        gene_panel = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41421-021-00266-1/MediaObjects/41421_2021_266_MOESM1_ESM.xlsx"
+        df_ref_panel_ini = pd.read_excel(gene_panel, index_col=0)
+        self.setDfRefPanel(df_ref_panel_ini.iloc[1:, :1])
+        self.getDfRefPanel().index.name = None
+        self.getDfRefPanel().columns = ["Function"]
+
+        # assign the values
+        marker_genes = self.getDfRefPanel()[
+            self.getDfRefPanel()["Function"].str.contains("marker")
+        ].index.tolist()
+
+        self.setMetaGene(deepcopy(self.getAdata().var))
+        self.setCommonMarkerGenes(list(set(self.getMetaGene().index.tolist()).intersection(marker_genes)))
+        self.getMetaGene().loc[self.getCommonMarkerGenes(), "Markers"] = self.getDfRefPanel().loc[
+            self.getCommonMarkerGenes(), "Function"
+        ]
+        self.getMetaGene()["Markers"] = self.getMetaGene()["Markers"].apply(
+            lambda x: "N.A." if "marker" not in str(x) else x
+        )
+        print(self.getMetaGene()["Markers"].value_counts())
+
+    def calculateLeidenExpressionSignatures(self):
+        ser_counts = self.getAdata().obs["leiden"].value_counts()
+        ser_counts.name = "cell counts"
+        self.setMetaLeiden(pd.DataFrame(ser_counts))
+
+        cat_name = "leiden"
+        self.setSigLeiden(pd.DataFrame(
+            columns=self.getAdata().var_names, index=self.getAdata().obs[cat_name].cat.categories
+        ))
+        for clust in self.getAdata().obs[cat_name].cat.categories:
+            self.getSigLeiden().loc[clust] = self.getAdata()[self.getAdata().obs[cat_name].isin([clust]), :].X.mean(0)
+        self.setSigLeiden(self.getSigLeiden().transpose())
+        self.setLeidenClusters(["Leiden-" + str(x) for x in self.getSigLeiden().columns.tolist()])
+        self.getSigLeiden().columns = self.getLeidenClusters()
+        self.getMetaLeiden().index = self.getSigLeiden().columns.tolist()
+        self.getMetaLeiden()["leiden"] = pd.Series(
+            self.getMetaLeiden().index.tolist(), index=self.getMetaLeiden().index.tolist()
+        )
+
+    def assignCellTypesOnExpression(self):
+        meta_gene = pd.DataFrame(index=self.getSigLeiden().index.tolist())
+        meta_gene["info"] = pd.Series("", index=meta_gene.index.tolist())
+        meta_gene["Markers"] = pd.Series("N.A.", index=self.getSigLeiden().index.tolist())
+        meta_gene.loc[self.getCommonMarkerGenes(), "Markers"] = self.getDfRefPanel().loc[
+            self.getCommonMarkerGenes(), "Function"
+        ]
+
+        print("GOT HERE 3")
+
+        self.getMetaLeiden()["Cell_Type"] = pd.Series("N.A.", index=self.getMetaLeiden().index.tolist())
+        num_top_genes = 30
+        for inst_cluster in self.getSigLeiden().columns.tolist():
+            top_genes = (
+                self.getSigLeiden()[inst_cluster]
+                .sort_values(ascending=False)
+                .index.tolist()[:num_top_genes]
+            )
+
+            inst_ser = meta_gene.loc[top_genes, "Markers"]
+            inst_ser = inst_ser[inst_ser != "N.A."]
+            ser_counts = inst_ser.value_counts()
+
+            max_count = ser_counts.max()
+
+            max_cat = "_".join(sorted(ser_counts[ser_counts == max_count].index.tolist()))
+            max_cat = max_cat.replace(" marker", "").replace(" ", "-")
+
+            print(inst_cluster, max_cat)
+            self.getMetaLeiden().loc[inst_cluster, "Cell_Type"] = max_cat
+
+        # rename clusters
+        self.getMetaLeiden()["name"] = self.getMetaLeiden().apply(
+            lambda x: x["Cell_Type"] + "_" + x["leiden"], axis=1
+        )
+        leiden_names = self.getMetaLeiden()["name"].values.tolist()
+        self.getMetaLeiden().index = leiden_names
+
+        # transfer cell type labels to single cells
+        leiden_to_cell_type = deepcopy(self.getMetaLeiden())
+        leiden_to_cell_type.set_index("leiden", inplace=True)
+        leiden_to_cell_type.index.name = None
+
+        self.getAdata().obs["Cell_Type"] = self.getAdata().obs["leiden"].apply(
+            lambda x: leiden_to_cell_type.loc["Leiden-" + str(x), "Cell_Type"]
+        )
+        self.getAdata().obs["Cluster"] = self.getAdata().obs["leiden"].apply(
+            lambda x: leiden_to_cell_type.loc["Leiden-" + str(x), "name"]
+        )
+
+    def calcSerCloseness(self):
+        # closeness centrality - measure of how close the group is to other nodes.
+        self.setSerCloseness(self.getDfCentral()["closeness_centrality"].sort_values(ascending=False))
+
+    def calcSerDegree(self):
+        # The degree centrality for a node v is the fraction of nodes it is connected to.
+        self.setSerDegree(self.getDfCentral()["degree_centrality"].sort_values(ascending=False))
+
+    def calcSerCluster(self):
+        # clustering coefficient - measure of the degree to which nodes cluster together.
+        self.setSerCluster(self.getDfCentral()["average_clustering"].sort_values(ascending=False))
+
+    def highClosenessScore(self):
+        inst_clusters = self.getSerCloseness().index.tolist()[:5]
+        self.spatialScatter(groups=inst_clusters, graphs="Cluster")
+
+    def lowClosenessScore(self):
+        inst_clusters = self.getSerCloseness().index.tolist()[-5:]
+        self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+
+    def highDegreeCentrality(self):
+        inst_clusters = self.getSerDegree().index.tolist()[:5]
+        self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+
+    def lowDegreeCentrality(self):
+        inst_clusters = self.getSerDegree().index.tolist()[-5:]
+        self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+
+    def highClusteringCoefficient(self):
+        inst_clusters = self.getSerCluster().index.tolist()[:5]
+        self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+
+    def lowClusteringCoefficient(self):
+        inst_clusters = self.getSerCluster().index.tolist()[-5:]
+        self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+
     # endregion
 
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.
@@ -298,7 +502,7 @@ if __name__ == "__main__":
     print("tl pca")
     esqAnalysis.tl_pca()
     print("neighbors")
-    esqAnalysis.neighbors()
+    esqAnalysis.pp_neighbors()
     print("tl umap")
     esqAnalysis.tl_umap()
     print("leiden")
@@ -311,8 +515,6 @@ if __name__ == "__main__":
     esqAnalysis.pl_umap()
 
     esqAnalysis.spatialScatter(graphs=['leiden'])
-
-    print(esqAnalysis.assignCellTypes())
 
     # neighborhood enrichment
     esqAnalysis.gr_spatialNeighbors()

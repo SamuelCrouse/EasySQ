@@ -118,7 +118,7 @@ def adataSetup(adata):
     print("\nprinciple component analysis...")
     pp_pca(adata)
     print("\nneighbors...")
-    neighbors(adata)
+    pp_neighbors(adata)
     print("\ncalculate UMAP...")
     tl_umap(adata)
     print("\nleiden...")
@@ -171,8 +171,7 @@ def qcMetrics(adata, percentTop=(50, 100)):
     """
 
     try:
-        adata.var_names_make_unique()
-        adata.var["mt"] = adata.var_names.str.startswith("mt-")
+        makeVarNamesUnique(adata=adata)
 
         sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True, qc_vars=["mt"])
         perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
@@ -186,6 +185,12 @@ def qcMetrics(adata, percentTop=(50, 100)):
     perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
 
     return perUnassigned
+
+
+# todo figure out a better method for this
+def makeVarNamesUnique(adata):
+    adata.var_names_make_unique()
+    adata.var["mt"] = adata.var_names.str.startswith("mt-")
 
 
 def layers(adata):
@@ -213,7 +218,7 @@ def tl_pca(adata, svdSolver="arpack"):
     return sc.tl.pca(adata, svd_solver=svdSolver)
 
 
-def neighbors(adata):
+def pp_neighbors(adata):
     return sc.pp.neighbors(adata)
 
 
@@ -258,30 +263,6 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
 
 def clustering(adata):
     pass
-
-
-# assign cell types based on a liver cell type marker reference
-def assignCellTypes(adata):
-    gene_panel = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41421-021-00266-1/MediaObjects/41421_2021_266_MOESM1_ESM.xlsx"
-    df_ref_panel_ini = pd.read_excel(gene_panel, index_col=0)
-    df_ref_panel = df_ref_panel_ini.iloc[1:, :1]
-    df_ref_panel.index.name = None
-    df_ref_panel.columns = ["Function"]
-
-    # Assign marker gene metadata using reference dataset
-    marker_genes = df_ref_panel[
-        df_ref_panel["Function"].str.contains("marker")
-    ].index.tolist()
-
-    meta_gene = deepcopy(adata.var)
-    common_marker_genes = list(set(meta_gene.index.tolist()).intersection(marker_genes))
-    meta_gene.loc[common_marker_genes, "Markers"] = df_ref_panel.loc[
-        common_marker_genes, "Function"
-    ]
-    meta_gene["Markers"] = meta_gene["Markers"].apply(
-        lambda x: "N.A." if "marker" not in str(x) else x
-    )
-    return meta_gene["Markers"].value_counts()
 
 
 # calculate spatial neighbors data
@@ -351,7 +332,7 @@ def leiden(adata, resolution=1.0, ignore=False):
                                "Run neighbors() with your args first if this is not what you want!"
             warnings.warn("Warning................................\n{}".format(warnNeighborsStr))
 
-            neighbors(adata)
+            pp_neighbors(adata)
             return leiden(adata, ignore=True)  # call leiden again with ignore, so if we get this error we will raise
 
         else:
@@ -418,7 +399,7 @@ def plotTranscripts(adata, show=False, figsize=(15, 4)):
 #
 # must setup adata by running adataSetup before this will work
 def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=0.4, size=None, shape=None,
-                   groups=None):
+                   groups=None, cmap=None, figsize=None):
     loopForColors = True
     while loopForColors:
         try:
@@ -430,6 +411,8 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=0.4, size=N
                 wspace=wspace,
                 size=size,
                 groups=groups,
+                cmap=cmap,
+                figsize=figsize,
             )
 
             # set the leiden colors and regenerate if no colors have been set
