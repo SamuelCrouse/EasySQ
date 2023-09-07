@@ -45,10 +45,10 @@ class Analysis:
     """
 
     """
-    # note: some rules for data
-    # 1. if a var isn't set, it should be None
-    # 2. all values initialized in constructor. If nothing is passed, set to None.
-    # 3. object.variable should not be used. Variables should only be accessed through getter and setter functions.
+    # Some rules for data in this class.
+    # 1. If a variable isn't set, it should be None.
+    # 2. All values initialized in constructor. If nothing is passed, set to None.
+    # 3. Object.variable should not be used. Variables should only be accessed through getter and setter functions.
     #      Except in constructor.
     # """
 
