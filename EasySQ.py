@@ -16,6 +16,35 @@ import time
 
 class Analysis:
     """
+        Documentation
+
+        Analysis class object documentation in EasySQ.py
+        =============================
+        ----
+
+        * Acts as a Squidpy interface. Many of the functions used in vizgen analysis of spatial data are represented
+          here. For example, reading in data is now simplified. You only need to provide a path, have your meta files
+          contain these names 'cell_metadata' and 'cell_by_gene' and EasySQ will automatically import your data into an
+          AnnData object for use with Squidpy.
+        * AnnData is kept track of in this class. Any Squidpy (supported) Squidpy function that uses AnnData can be
+          called using this class object. Operations will then be done to the stored AnnData.
+        * Follow these demos to see how to work with EasySQ.
+        Todo, make demos and link them here.
+
+        ----
+
+        Examples:
+        --------
+        1. Creating and working with an Analysis class object:
+            * import EasySQ as esq
+            * esqAn = esq.Analysis(data_path=pathToData)
+        ..
+        2. Print example:
+            * esqAn.print()
+            * This calls the class function print. Which prints the AnnData object among other information.
+    """
+
+    """
     # note: some rules for data
     # 1. if a var isn't set, it should be None
     # 2. all values initialized in constructor. If nothing is passed, set to None.
@@ -47,97 +76,974 @@ class Analysis:
         self.serDegree = None
         self.serCluster = None
 
+        self.topAutoCorr = None
+        self.botAutoCorr = None
+
     # endregion constructor
 
     ####################################################################################################################
     ####################################################################################################################
     # region setter functions
-    # note: primary setter funcs
+    """
+        Documentation
+
+        EasySQ Analysis Class Setter Functions
+        =============================
+        
+        These are used mostly internally to set class variables.
+    """
 
     # set the ID of this object
     def setID(self, ID):
+        """
+            Documentation
+
+            setID() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the ID class variable.
+            * Which is used to keep track of this object.
+
+            ----
+
+            Parameters:
+            ----------
+            * ID: The value for the ID of this object.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setID():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setID("myID")
+        """
+
         self.ID = str(ID)
+        return None
 
     def setDataPath(self, data_path):
+        """
+            Documentation
+
+            setDataPath() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the data_path class variable.
+            * Which is used to read user provided meta data.
+
+            ----
+
+            Parameters:
+            ----------
+            * data_path: The file path to the directory containing the data.
+            * type: string
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setDataPath():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setDataPath("path/to/my/dir/")
+        """
+
         self.data_path = data_path
+        return None
 
     def setAdata(self, adata):
+        """
+            Documentation
+
+            setAdata() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the adata class variable.
+            * This is what all analyses are performed on.
+            * Note, overwriting adata with this function could interfere with saved Analysis class data.
+            * If you need to supply another adata object, I would recommend creating a new Analysis class object.
+
+            ----
+
+            Parameters:
+            ----------
+            * adata: The AnnData object you wish to set to the class object.
+            * type: AnnData object.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setAdata():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setAdata(myAnnDataObject)
+            ..
+            2. AnnData Note:
+                * An AnnData object is created on class object instantiation, so calling this manually is not recommended.
+        """
+
         self.adata = adata
+        return None
 
     def setMetaGene(self, value):
+        """
+            Documentation
+
+            setMetaGene() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the metaGene class variable.
+            * Used in assigning reference cells.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.metaGene to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setMetaGene():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setMetaGene(value)
+        """
+
         self.metaGene = value
+        return None
 
     def setCommonMarkerGenes(self, value):
+        """
+            Documentation
+
+            setCommonMarkerGenes() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the commonMarkerGenes class variable.
+            * Used in assigning reference cells.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.commonMarkerGenes to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setCommonMarkerGenes():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setCommonMarkerGenes(value)
+        """
+
         self.commonMarkerGenes = value
+        return None
 
     def setDfRefPanel(self, value):
+        """
+            Documentation
+
+            setDfRefPanel() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the dfRefPanel class variable.
+            * Used in assigning reference cells.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.dfRefPanel to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setDfRefPanel():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setDfRefPanel(value)
+        """
+
         self.dfRefPanel = value
+        return None
 
     def setSigLeiden(self, value):
+        """
+            Documentation
+
+            setSigLeiden() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the sigLeiden class variable.
+            * Used in calculating leiden expression signatures.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.sigLeiden to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setSigLeiden():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setSigLeiden(value)
+        """
+
         self.sigLeiden = value
+        return None
 
     def setMetaLeiden(self, value):
+        """
+            Documentation
+
+            setMetaLeiden() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the metaLeiden class variable.
+            * Used in calculating leiden expression signatures.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.metaLeiden to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setMetaLeiden():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setMetaLeiden(value)
+        """
+
         self.metaLeiden = value
+        return None
 
     def setLeidenClusters(self, value):
+        """
+            Documentation
+
+            setLeidenClusters() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the leidenClusters class variable.
+            * Used in calculating leiden expression signatures.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.leidenClusters to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setLeidenClusters():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setLeidenClusters(value)
+        """
+
         self.leidenClusters = value
+        return None
 
     def setDfCentral(self, value):
+        """
+            Documentation
+
+            setDfCentral() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the dfCentral class variable.
+            * Used in demos to store various data.
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.dfCentral to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setDfCentral():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setDfCentral(value)
+        """
+
         self.dfCentral = value
+        return None
 
     def setSerCloseness(self, value):
+        """
+            Documentation
+
+            setSerCloseness() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the serCloseness class variable.
+            * Used in calcSerCloseness() in tandem with getDfCentral().
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.serCloseness to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setSerCloseness():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setSerCloseness(value)
+        """
+
         self.serCloseness = value
+        return None
 
     def setSerDegree(self, value):
+        """
+            Documentation
+
+            setSerDegree() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the serDegree class variable.
+            * Used in calcSerDegree() in tandem with getDfCentral().
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.serDegree to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setSerDegree():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setSerDegree(value)
+        """
+
         self.serDegree = value
+        return None
 
     def setSerCluster(self, value):
+        """
+            Documentation
+
+            setSerCluster() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the serCluster class variable.
+            * Used in calcSerCluster() in tandem with getDfCentral().
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.serCluster to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setSerCluster():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setSerCluster(value)
+        """
+
         self.serCluster = value
+        return None
+
+    def setTopAutoCorr(self, value):
+        """
+            Documentation
+
+            setTopAutoCorr() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the topAutoCorr class variable.
+            * Used in the calculation of Moran's I Score.
+            * calcMoransIScore()
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.topAutoCorr to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setTopAutoCorr():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setTopAutoCorr(value)
+        """
+
+        self.topAutoCorr = value
+        return None
+
+    def setBotAutoCorr(self, value):
+        """
+            Documentation
+
+            setBotAutoCorr() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to set the botAutoCorr class variable.
+            * Used in the calculation of Moran's I Score.
+            * calcMoransIScore()
+
+            ----
+
+            Parameters:
+            ----------
+            * value: The value you wish to set self.botAutoCorr to.
+            * type: any
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setBotAutoCorr():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * esqAn.setBotAutoCorr(value)
+        """
+
+        self.botAutoCorr = value
+        return None
 
     # endregion
 
     ####################################################################################################################
     ####################################################################################################################
     # region getter functions
-    # note: primary getter funcs
+    """
+        Documentation
+
+        EasySQ Analysis Class Getter Functions
+        =============================
+
+        These are used mostly internally to get class variables.
+    """
+
     def getID(self):
+        """
+            Documentation
+
+            getID() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the ID class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.ID
+            * type: default is string, but can be user defined.
+
+            Examples:
+            --------
+            1. Calling getID():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * ID = esqAn.getID()
+        """
+
         return self.ID
 
     def getDataPath(self):
+        """
+            Documentation
+
+            getDataPath() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the data_path class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.data_path
+            * type: default is string, but can be user defined.
+
+            Examples:
+            --------
+            1. Calling getDataPath():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * data_path = esqAn.getDataPath()
+        """
+
         return self.data_path
 
     def getAdata(self):
+        """
+            Documentation
+
+            getAdata() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the adata class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.adata
+            * type: default is AnnData object, but can be user defined. (Don't recommend.)
+
+            Examples:
+            --------
+            1. Calling getAdata():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * adata = esqAn.getAdata()
+        """
+
         return self.adata
 
     def getMetaGene(self):
+        """
+            Documentation
+
+            getMetaGene() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the metaGene class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.metaGene
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getMetaGene():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * metaGene = esqAn.getMetaGene()
+        """
+
         return self.metaGene
 
     def getCommonMarkerGenes(self):
+        """
+            Documentation
+
+            getCommonMarkerGenes() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the commonMarkerGenes class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.commonMarkerGenes
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getCommonMarkerGenes():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * commonMarkerGenes = esqAn.getCommonMarkerGenes()
+        """
+
         return self.commonMarkerGenes
 
     def getDfRefPanel(self):
+        """
+            Documentation
+
+            getDfRefPanel() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the dfRefPanel class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.dfRefPanel
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getDfRefPanel():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * dfRefPanel = esqAn.getDfRefPanel()
+        """
+
         return self.dfRefPanel
 
     def getSigLeiden(self):
+        """
+            Documentation
+
+            getSigLeiden() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the sigLeiden class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.sigLeiden
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getSigLeiden():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * sigLeiden = esqAn.getSigLeiden()
+        """
+
         return self.sigLeiden
 
     def getMetaLeiden(self):
+        """
+            Documentation
+
+            getMetaLeiden() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the metaLeiden class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.metaLeiden
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getMetaLeiden():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * metaLeiden = esqAn.getMetaLeiden()
+        """
+
         return self.metaLeiden
 
     def getLeidenClusters(self):
+        """
+            Documentation
+
+            getLeidenClusters() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the leidenClusters class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.leidenClusters
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getLeidenClusters():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * leidenClusters = esqAn.getLeidenClusters()
+        """
+
         return self.leidenClusters
 
     def getDfCentral(self):
+        """
+            Documentation
+
+            getDfCentral() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the dfCentral class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.dfCentral
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getDfCentral():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * dfCentral = esqAn.getDfCentral()
+        """
+
         return self.dfCentral
 
     def getSerCloseness(self):
+        """
+            Documentation
+
+            getSerCloseness() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the serCloseness class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.serCloseness
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getSerCloseness():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * serCloseness = esqAn.getSerCloseness()
+        """
+
         return self.serCloseness
 
     def getSerDegree(self):
+        """
+            Documentation
+
+            getSerDegree() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the serDegree class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.serDegree
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getSerDegree():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * serDegree = esqAn.getSerDegree()
+        """
+
         return self.serDegree
 
     def getSerCluster(self):
+        """
+            Documentation
+
+            getSerCluster() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the serCluster class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.serCluster
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getSerCluster():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * serCluster = esqAn.getSerCluster()
+        """
+
         return self.serCluster
+
+    def getTopAutoCorr(self):
+        """
+            Documentation
+
+            getTopAutoCorr() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the topAutoCorr class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.topAutoCorr
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getTopAutoCorr():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * topAutoCorr = esqAn.getTopAutoCorr()
+        """
+
+        return self.topAutoCorr
+
+    def getBotAutoCorr(self):
+        """
+            Documentation
+
+            getBotAutoCorr() EasySQ Class function.
+            =============================
+            ----
+
+            * Used to get the botAutoCorr class variable.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * self.botAutoCorr
+            * type: Automatically set, can be user defined.
+
+            Examples:
+            --------
+            1. Calling getBotAutoCorr():
+                * Using the EasySQ Analysis class object you created, called "esqAn":
+                * botAutoCorr = esqAn.getBotAutoCorr()
+        """
+
+        return self.botAutoCorr
 
     # endregion
 
@@ -177,7 +1083,7 @@ class Analysis:
             =============================
             ----
 
-            * qcMetrics class function for EasySQ class.
+            * qcMetrics() class function for EasySQ class.
             * Acts as a wrapper for EasySQTools qcMetrics function.
             * Calculates a number of qc metrics for the self AnnData object.
 
@@ -201,7 +1107,7 @@ class Analysis:
             ..
             2. Calling qcMetrics:
                 * Create EasySQ class object and use:
-                * perUn = esq.qcMetrics()
+                * perUn = esqAn.qcMetrics()
                     Where 'perUn' is the perUnassigned returned and default args are used.
         """
 
@@ -331,7 +1237,7 @@ class Analysis:
     def pl_ripley(self, cluster_key="leiden", mode="L"):
         return tools.pl_ripley(adata=self.getAdata(), cluster_key=cluster_key, mode=mode)
 
-    def gr_spatialAutocorr(self, adata=None, mode="moran", nPerms=100, nJobs=1):
+    def gr_spatialAutocorr(self, adata=None, mode="moran", nPerms=None, nJobs=None):
         if adata is None:
             tools.gr_spatialAutocorr(adata=self.getAdata(), mode=mode, nPerms=nPerms, nJobs=nJobs)
 
@@ -469,6 +1375,94 @@ class Analysis:
         inst_clusters = self.getSerCluster().index.tolist()[-5:]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
 
+    def calcMoransIScore(self, numView=12):
+        """
+            Documentation
+
+            calcMoransIScore() class function docs
+            =============================
+            ----
+
+            * calcMoransIScore() class function for EasySQ class.
+            * Calculates the top and bottom autocorrelation using gr_spatialAutocorr()
+
+            ----
+
+            Parameters:
+            ----------
+            * numView=12: Number of top and bottom autocorr we calculate for
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling calcMoransIScore():
+                * Setup an EasySQ Analysis class object called esqAn, then call with:
+                * esqAn.calcMoransIScore(numView=12) or
+                * esqAn.calcMoransIScore(numView=6) or
+                * esqAn.calcMoransIScore(numView=n)
+            ..
+            2. Displaying the graphs:
+                * After calling esqAn.calcMoransIScore() you can call esqAn.plotMoransIScore()
+                * Calling esqAn.showPlots() will display these graphs.
+        """
+
+        self.gr_spatialAutocorr(mode='moran')
+        num_view = numView
+        self.setTopAutoCorr(
+            self.getAdata().uns["moranI"]["I"].sort_values(ascending=False).head(num_view).index.tolist())
+
+        self.setBotAutoCorr(
+            self.getAdata().uns["moranI"]["I"].sort_values(ascending=True).head(num_view).index.tolist())
+
+        return None
+
+    def plotMoransIScore(self, size=None, figsize=(3, 3)):
+        """
+            Documentation
+
+            plotMoransIScore() class function docs
+            =============================
+            ----
+
+            * plotMoransIScore() class function for EasySQ class.
+            * Plots the graphs calculated by calcMoransIScore() class function
+
+            ----
+
+            Parameters:
+            ----------
+            * figsize=(3, 3): the size of the window
+            * size=None: Size of the scatter point/shape.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling plotMoransIScore():
+                * Setup an EasySQ Analysis class object called esqAn.
+                * Call calcMoransIScore to set up the autocorrelation values.
+                * Then, call with:
+                * esqAn.plotMoransIScore(figsize=(3, 3)) or
+                * esqAn.plotMoransIScore(figsize=(5, 5)) or
+                * esqAn.plotMoransIScore(figsize=(n, n))
+            ..
+            2. Displaying the graphs:
+                * After calling esqAn.calcMoransIScore() you can call esqAn.plotMoransIScore()
+                * Calling esqAn.showPlots() will display these graphs.
+        """
+
+        # print("Genes with high autocorrelation")
+        self.spatialScatter(graphs=self.getTopAutoCorr(), cmap="Reds", size=size, figsize=figsize)
+
+        # print("Genes with low autocorrelation")
+        self.spatialScatter(graphs=self.getBotAutoCorr(), cmap="Reds", size=size, figsize=figsize)
+
+        return None
     # endregion
 
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.

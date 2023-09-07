@@ -8,7 +8,7 @@ import os
 import time
 
 # my imports
-import EasySQ as eSQ
+import EasySQ as esq
 import EasySQTools as tools
 
 # sq demo imports
@@ -29,78 +29,78 @@ def esq_demo_1():
 
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
     # path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
-    esq = eSQ.Analysis(data_path=path)
-    esq.print()
+    esqAn = esq.Analysis(data_path=path)
+    esqAn.print()
 
-    perUn = esq.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
+    perUn = esqAn.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
     print("percent unassigned: {}".format(perUn))
 
-    esq.plotTranscripts(show=False)
+    esqAn.plotTranscripts(show=False)
 
-    esq.filterCells(minCounts=10)
+    esqAn.filterCells(minCounts=10)
 
     print("layers")
-    esq.layers()
+    esqAn.layers()
     print("highly variable genes")
-    esq.highlyVariableGenes()
+    esqAn.highlyVariableGenes()
     print("normalize total")
-    esq.normalizeTotal()
+    esqAn.normalizeTotal()
     print("log1p")
-    esq.log1p()
+    esqAn.log1p()
     print("pca")
-    esq.pp_pca()
+    esqAn.pp_pca()
     print("neighbors")
-    esq.pp_neighbors()
+    esqAn.pp_neighbors()
     print("umap")
-    esq.tl_umap()
+    esqAn.tl_umap()
     print("leiden")
-    esq.leiden()
+    esqAn.leiden()
 
-    esq.setLeidenColors(color_file="leiden_generated_random_3.txt")
+    esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
     print("pl_UMAP")
-    esq.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
-    esq.spatialScatter(graphs=["leiden"])
+    esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
+    esqAn.spatialScatter(graphs=["leiden"])
     # esq.showPlots()
 
     print("spatial neighbors")
-    esq.gr_spatialNeighbors(delaunay=True)
+    esqAn.gr_spatialNeighbors(delaunay=True)
 
     print("compute centrality scores")
-    esq.gr_centrality_scores()
-    esq.pl_centrality_scores(figsize=(16, 5))
+    esqAn.gr_centrality_scores()
+    esqAn.pl_centrality_scores(figsize=(16, 5))
 
     print("co-occurrence probability")
-    adata_subsample = sc.pp.subsample(esq.getAdata(), fraction=0.5, copy=True)
-    esq.gr_co_occurrence(adata=adata_subsample)
-    esq.pl_co_occurrence(adata=adata_subsample)
+    adata_subsample = sc.pp.subsample(esqAn.getAdata(), fraction=0.5, copy=True)
+    esqAn.gr_co_occurrence(adata=adata_subsample)
+    esqAn.pl_co_occurrence(adata=adata_subsample)
 
-    esq.spatialScatter(adata=adata_subsample, graphs="leiden")
+    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden")
 
     print("neighbors enrichment analysis")
-    esq.gr_nhoodEnrichment()
-    esq.pl_nhoodEnrichment()
+    esqAn.gr_nhoodEnrichment()
+    esqAn.pl_nhoodEnrichment()
 
-    esq.spatialScatter(adata=adata_subsample, graphs="leiden")
+    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden")
 
     print("Ripley's statistics")
 
-    esq.gr_ripley()
-    esq.pl_ripley()
-    esq.spatialScatter(adata=adata_subsample, graphs="leiden", groups=["0", "1", "3"])
+    esqAn.gr_ripley()
+    esqAn.pl_ripley()
+    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden", groups=["0", "1", "3"])
 
     print("Moran's I score")
-    esq.gr_spatialNeighbors(adata=adata_subsample, delaunay=True)
-    esq.gr_spatialAutocorr(adata=adata_subsample)
+    esqAn.gr_spatialNeighbors(adata=adata_subsample, delaunay=True)
+    esqAn.gr_spatialAutocorr(adata=adata_subsample, nPerms=100, nJobs=1)
     adata_subsample.uns["moranI"].head(10)
 
-    esq.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Npy2r"])
+    esqAn.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Npy2r"])
 
     t1 = time.time()
     totalTime = t1 - t0
     print("time elapsed: {}".format(totalTime))
 
-    esq.showPlots()
+    esqAn.showPlots()
 
 
 def sq_demo_1():

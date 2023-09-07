@@ -315,7 +315,7 @@ def pl_ripley(adata, cluster_key="leiden", mode="L"):
     return sq.pl.ripley(adata, cluster_key=cluster_key, mode=mode)
 
 
-def gr_spatialAutocorr(adata, mode="moran", nPerms=100, nJobs=1):
+def gr_spatialAutocorr(adata, mode="moran", nPerms=None, nJobs=None):
     return sq.gr.spatial_autocorr(adata, mode=mode, n_perms=nPerms, n_jobs=nJobs)
 
 
@@ -642,7 +642,7 @@ if __name__ == "__main__":
     print(testCode)
     # """
 
-    """
+    # """
     # note: readVizgen(data_path) tests
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
     transformation_path = 'C:/Users/scrouse2/Crouse_Work_Files/PyCharm_Projects/EasySQ/'

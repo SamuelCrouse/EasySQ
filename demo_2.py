@@ -13,114 +13,102 @@ import os
 import time
 
 # my imports
-import EasySQ as eSQ
+import EasySQ as esq
 
 
 def esq_demo_2():
     t0 = time.time()  # start timer
 
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
-    esq = eSQ.Analysis(data_path=path)
-    esq.print()
+    esqAn = esq.Analysis(data_path=path)
+    esqAn.print()
 
-    esq.qcMetrics(percentTop=(50, 100, 140))
+    esqAn.qcMetrics(percentTop=(50, 100, 140))
 
-    esq.filterCells()
-    esq.filterGenes()
+    esqAn.filterCells()
+    esqAn.filterGenes()
 
     print("normalize total")
-    esq.normalizeTotal()
+    esqAn.normalizeTotal()
     print("log transform")
-    esq.log1p()
+    esqAn.log1p()
     print("scale")
-    esq.scale()
+    esqAn.scale()
 
     resolution = 1.5
     print("PCA")
-    esq.tl_pca()
+    esqAn.tl_pca()
     print("neighbors")
-    esq.pp_neighbors()
+    esqAn.pp_neighbors()
     print("UMAP")
-    esq.tl_umap()
+    esqAn.tl_umap()
     print("leiden")
-    esq.leiden(resolution=resolution)
+    esqAn.leiden(resolution=resolution)
 
-    esq.pl_umap(graphs=["leiden"])
+    esqAn.pl_umap(graphs=["leiden"])
 
-    esq.spatialScatter(graphs="leiden", libraryID="spatial")
+    esqAn.spatialScatter(graphs="leiden", libraryID="spatial")
 
     print("assign cell types")
-    esq.assignReferenceCells()
+    esqAn.assignReferenceCells()
 
     print("Calculate Leiden Cluster Average Expression Signatures")
-    esq.calculateLeidenExpressionSignatures()
+    esqAn.calculateLeidenExpressionSignatures()
 
     print("Assign Cell Type Based on Top Expressed Marker Genes")
-    esq.assignCellTypesOnExpression()
+    esqAn.assignCellTypesOnExpression()
 
     print("Neighborhood Enrichment")
-    esq.gr_spatialNeighbors()
-    esq.gr_nhoodEnrichment()
-    esq.pl_nhoodEnrichment()
+    esqAn.gr_spatialNeighbors()
+    esqAn.gr_nhoodEnrichment()
+    esqAn.pl_nhoodEnrichment()
 
     print("Neighborhood Enrichment Clusters")
-    esq.plotNHoodEnrichmentClusters()
+    esqAn.plotNHoodEnrichmentClusters()
 
     print("Network Centrality Scores")
-    esq.gr_centrality_scores()
+    esqAn.gr_centrality_scores()
 
-    esq.setDfCentral(deepcopy(esq.getAdata().uns["leiden_centrality_scores"]))
-    esq.getDfCentral().index = esq.getMetaLeiden().index.tolist()
+    esqAn.setDfCentral(deepcopy(esqAn.getAdata().uns["leiden_centrality_scores"]))
+    esqAn.getDfCentral().index = esqAn.getMetaLeiden().index.tolist()
 
     # sort clusters based on centrality scores
     # closeness centrality - measure of how close the group is to other nodes.
-    esq.calcSerCloseness()
+    esqAn.calcSerCloseness()
 
     # degree centrality - fraction of non-group members connected to group members.
-    esq.calcSerDegree()
+    esqAn.calcSerDegree()
 
     # clustering coefficient - measure of the degree to which nodes cluster together.
-    esq.calcSerCluster()
+    esqAn.calcSerCluster()
 
     print("High Closeness Score")
-    esq.highClosenessScore()
+    esqAn.highClosenessScore()
 
     print("Low Closeness Score")
-    esq.lowClosenessScore()
+    esqAn.lowClosenessScore()
 
     print("High Degree Centrality")
-    esq.highDegreeCentrality()
+    esqAn.highDegreeCentrality()
 
     print("Low Degree Centrality")
-    esq.lowDegreeCentrality()
+    esqAn.lowDegreeCentrality()
 
     print("High Clustering Coefficient")
-    esq.highClusteringCoefficient()
+    esqAn.highClusteringCoefficient()
 
     print("Low Clustering Coefficient")
-    esq.lowClusteringCoefficient()
+    esqAn.lowClusteringCoefficient()
 
     print("Autocorrelation: Moran's I Score")
-    sq.gr.spatial_autocorr(esq.getAdata(), mode="moran")
-    num_view = 12
-    top_autocorr = (esq.getAdata().uns["moranI"]["I"].sort_values(ascending=False).head(num_view).index.tolist())
-    bot_autocorr = (esq.getAdata().uns["moranI"]["I"].sort_values(ascending=True).head(num_view).index.tolist())
-    esq.spatialScatter(graphs=top_autocorr, cmap="Reds", size=10, figsize=(3, 3))
-
-    # top cell types based on average expression of top_autocorr genes
-    print(esq.getSigLeiden().loc[top_autocorr].mean(axis=0).sort_values(ascending=False).index.tolist()[:5])
-
-    print("Genes with low autocorrelation")
-    esq.spatialScatter(graphs=bot_autocorr, cmap="Reds",  size=10, figsize=(3, 3))
-
-    # top cell types based on average expression of bot_autocorr genes
-    print(esq.getSigLeiden().loc[bot_autocorr].mean(axis=0).sort_values(ascending=False).index.tolist()[:5])
+    esqAn.calcMoransIScore(numView=12)
+    esqAn.plotMoransIScore(size=40, figsize=(3, 3))
 
     t1 = time.time()  # end timer
     totalTime = t1 - t0
     print("time elapsed: {}".format(totalTime))
 
-    esq.showPlots()
+    esqAn.showPlots()
     return
 
 
