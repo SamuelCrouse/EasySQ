@@ -71,7 +71,7 @@ def esq_demo_1():
     esqAn.pl_centrality_scores(figsize=(16, 5))
 
     print("co-occurrence probability")
-    adata_subsample = sc.pp.subsample(esqAn.getAdata(), fraction=0.5, copy=True)
+    adata_subsample = esqAn.adataSubsample(fraction=0.5, copy=True)
     esqAn.gr_co_occurrence(adata=adata_subsample)
     esqAn.pl_co_occurrence(adata=adata_subsample)
 
@@ -103,6 +103,7 @@ def esq_demo_1():
     esqAn.showPlots()
 
 
+"""
 def sq_demo_1():
     t0 = time.time()
 
@@ -282,6 +283,7 @@ def sq_demo_1():
     print("time elapsed: {}".format(totalTime))
 
     plt.show()
+# """
 
 
 if __name__ == "__main__":

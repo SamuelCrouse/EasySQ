@@ -295,6 +295,11 @@ def pl_centrality_scores(adata, cluster_key="leiden", figsize=None):
     return sq.pl.centrality_scores(adata=adata, cluster_key=cluster_key, figsize=figsize)
 
 
+# Subsample to a fraction of the number of observations.
+def adataSubsample(adata, fraction=0.5, copy=True):
+    return sc.pp.subsample(adata, fraction=fraction, copy=copy)
+
+
 # compute the co-occurrence probability
 def gr_co_occurrence(adata, cluster_key="leiden"):
     return sq.gr.co_occurrence(adata=adata, cluster_key=cluster_key)
@@ -508,6 +513,9 @@ def showPlots():
 # defaults to searching in the 'colors' directory
 def getColors(color_file):
     # search for the given file
+    if color_file.find("colors/") != -1:
+        color_file = color_file.replace("colors/", '')
+
     color_path = str(os.getcwd()).replace('\\', '/') + '/'
     color_path = searchFiles(color_path, 'colors')
 
@@ -711,5 +719,3 @@ if __name__ == "__main__":
     print(getLeidenColors(adata=testAdata))
 
     # """
-
-    # todo implement clustering

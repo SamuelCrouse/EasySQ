@@ -11,7 +11,6 @@ from scipy.cluster import hierarchy as sch
 
 # my imports
 import EasySQTools as tools
-import time
 
 
 class Analysis:
@@ -1212,6 +1211,10 @@ class Analysis:
     def pl_centrality_scores(self, cluster_key="leiden", figsize=None):
         return tools.pl_centrality_scores(adata=self.getAdata(), cluster_key=cluster_key, figsize=figsize)
 
+    # Subsample to a fraction of the number of observations.
+    def adataSubsample(self, fraction=0.5, copy=True):
+        return tools.adataSubsample(adata=self.getAdata(), fraction=fraction, copy=copy)
+
     # compute the co-occurrence probability
     def gr_co_occurrence(self, adata=None, cluster_key="leiden"):
         if adata is None:
@@ -1492,6 +1495,9 @@ class Analysis:
 
 
 if __name__ == "__main__":
+    pass
+
+    """
     path = 'F:/sunlabmerfishdata/QSFL01222023/'
     esqAnalysis = Analysis(data_path=path)
     esqAnalysis.print()
@@ -1538,3 +1544,4 @@ if __name__ == "__main__":
     esqAnalysis.gr_spatialNeighbors()
     esqAnalysis.gr_nhoodEnrichment()
     esqAnalysis.pl_nhoodEnrichment()
+    # """
