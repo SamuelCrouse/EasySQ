@@ -33,7 +33,7 @@ def esq_demo_1():
     esqAn.print()
 
     perUn = esqAn.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
-    print("percent unassigned: {}".format(perUn))
+    print("percent unassigned: {}%".format(perUn))
 
     esqAn.plotTranscripts(show=False)
 
@@ -84,7 +84,6 @@ def esq_demo_1():
     esqAn.spatialScatter(adata=adata_subsample, graphs="leiden")
 
     print("Ripley's statistics")
-
     esqAn.gr_ripley()
     esqAn.pl_ripley()
     esqAn.spatialScatter(adata=adata_subsample, graphs="leiden", groups=["0", "1", "3"])
