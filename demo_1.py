@@ -67,8 +67,8 @@ def esq_demo_1():
     esqAn.gr_spatialNeighbors(delaunay=True)
 
     print("compute centrality scores")
-    esqAn.gr_centrality_scores()
-    esqAn.pl_centrality_scores(figsize=(16, 5))
+    esqAn.gr_centralityScores()
+    esqAn.pl_centralityScores(figsize=(16, 5))
 
     print("co-occurrence probability")
     adata_subsample = esqAn.adataSubsample(fraction=0.5, copy=True)
@@ -91,9 +91,9 @@ def esq_demo_1():
     print("Moran's I score")
     esqAn.gr_spatialNeighbors(adata=adata_subsample, delaunay=True)
     esqAn.gr_spatialAutocorr(adata=adata_subsample, nPerms=100, nJobs=1)
-    adata_subsample.uns["moranI"].head(10)
+    print(adata_subsample.uns["moranI"].head(10))
 
-    esqAn.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Npy2r"])
+    esqAn.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Igfbp2"])
 
     t1 = time.time()
     totalTime = t1 - t0

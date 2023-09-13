@@ -1204,12 +1204,12 @@ class Analysis:
             self.spatialScatter(graphs="Cluster", groups=inst_clusters, size=size, figsize=figsize)
 
     # compute the centrality scores
-    def gr_centrality_scores(self, cluster_key="leiden"):
-        return tools.gr_centrality_scores(adata=self.getAdata(), cluster_key=cluster_key)
+    def gr_centralityScores(self, cluster_key="leiden"):
+        return tools.gr_centralityScores(adata=self.getAdata(), cluster_key=cluster_key)
 
     # graph the centrality scores
-    def pl_centrality_scores(self, cluster_key="leiden", figsize=None):
-        return tools.pl_centrality_scores(adata=self.getAdata(), cluster_key=cluster_key, figsize=figsize)
+    def pl_centralityScores(self, cluster_key="leiden", figsize=None):
+        return tools.pl_centralityScores(adata=self.getAdata(), cluster_key=cluster_key, figsize=figsize)
 
     # Subsample to a fraction of the number of observations.
     def adataSubsample(self, fraction=0.5, copy=True):

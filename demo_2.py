@@ -67,7 +67,7 @@ def esq_demo_2():
     esqAn.plotNHoodEnrichmentClusters()
 
     print("Network Centrality Scores")
-    esqAn.gr_centrality_scores()
+    esqAn.gr_centralityScores()
 
     esqAn.setDfCentral(deepcopy(esqAn.getAdata().uns["leiden_centrality_scores"]))
     esqAn.getDfCentral().index = esqAn.getMetaLeiden().index.tolist()

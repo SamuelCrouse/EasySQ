@@ -286,12 +286,12 @@ def pl_nhoodEnrichment(adata, show=False, clusterKey="leiden", method="average",
 
 
 # compute the centrality scores
-def gr_centrality_scores(adata, cluster_key="leiden"):
+def gr_centralityScores(adata, cluster_key="leiden"):
     return sq.gr.centrality_scores(adata=adata, cluster_key=cluster_key)
 
 
 # graph the centrality scores
-def pl_centrality_scores(adata, cluster_key="leiden", figsize=None):
+def pl_centralityScores(adata, cluster_key="leiden", figsize=None):
     return sq.pl.centrality_scores(adata=adata, cluster_key=cluster_key, figsize=figsize)
 
 
