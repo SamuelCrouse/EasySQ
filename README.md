@@ -9,6 +9,8 @@
 </ul>
 
 ### Demo 1 follows ["this"](https://squidpy.readthedocs.io/en/stable/notebooks/tutorials/tutorial_vizgen.html) Squidpy tutorial on analyzing vizgen data.
+I would recommend working through the provided "EasySQ Demo demo_number.ipynb." 1 and 2 are going to explain how to use EasySQ for your analysis of vizgen data.
+There is also a demo on using EasySQ with Squidpy functions so that you can mix and match the two, which is also recommended.
 
 ### Demo 2 follows ["this"](https://squidpy.readthedocs.io/en/stable/notebooks/tutorials/tutorial_vizgen_mouse_liver.html) Squidpy tutorial on analyzing vizgen data.
 
