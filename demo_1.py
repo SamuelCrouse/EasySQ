@@ -27,8 +27,8 @@ import squidpy as sq
 def esq_demo_1():
     t0 = time.time()
 
-    path = 'F:/sunlabmerfishdata/QSFL01222023/'
-    # path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+    # path = 'F:/sunlabmerfishdata/QSFL01222023/'
+    path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
@@ -93,7 +93,7 @@ def esq_demo_1():
     esqAn.gr_spatialAutocorr(adata=adata_subsample, nPerms=100, nJobs=1)
     print(adata_subsample.uns["moranI"].head(10))
 
-    esqAn.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Igfbp2"])
+    esqAn.spatialScatter(adata=adata_subsample, graphs=["Slc17a7", "Chrm1"])
 
     t1 = time.time()
     totalTime = t1 - t0
