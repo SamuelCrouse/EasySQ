@@ -8,6 +8,12 @@
     <li>Work with more complex Squidpy processes through the use of both EasySQ and Squidpy.</li>
 </ul>
 
+# <b>Disclaimer</b>
+
+EasySQ is currently in an early access development state. Documentation is not complete and bugs may be present.<br>
+This sphere of development should be completed by November (2023).<br>
+For any questions, please contact Samuel Crouse at scrouse2@uwyo.edu.
+
 # <b>EasySQ Installation and Setup</b>
 
 This will walk you through how to install EasySQ from the github onto your IDE.<br>
