@@ -28,8 +28,7 @@ class Analysis:
         * AnnData is kept track of in this class. Any Squidpy (supported) Squidpy function that uses AnnData can be
           called using this class object. Operations will then be done to the stored AnnData.
         * Follow these demos to see how to work with EasySQ.
-        Todo, make demos and link them here.
-
+        * The demos can be found at (https://github.com/SamuelCrouse/EasySQ)
         ----
 
         Examples:
@@ -1050,8 +1049,46 @@ class Analysis:
     ####################################################################################################################
     # region functions
     # note: given a filepath, reads and creates an anndata object
-    def readVizgen(self, data_path):
-        return tools.readVizgen(data_path)
+    def readVizgen(self, data_path, transform_file='micron_to_mosaic_pixel_transform.csv'):
+        """
+            Documentation
+
+            readVizgen() class function docs
+            =============================
+            ----
+
+            * readVizgen() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools readVizgen() function.
+            * Read in and create adata based on metadata files.
+
+            ----
+
+            Parameters:
+            ----------
+            * data_path="path/to/my/data/": The path to the directory containing your metadata.
+            * transform_file='micron_to_mosaic_pixel_transform.csv': Can be ignored unless you want to provide your own transform file.
+            * This must be the name of the transform file stored in the 'images' directory.
+
+            Returns:
+            -------
+            * AnnData object that contains your meta data.
+
+            Examples:
+            --------
+            1. Calling readVizgen()
+                * newAdata = esqAn.readVizgen()
+                I don't recommend doing this, because it is bad design to use a current class object that manages its
+                own data to create a new, unassociated dataset; especially when there are methods in place to do so.
+                If you need to work with a new set of data, or even if you plan to use them in tandem, then you should
+                create a new 'esq' object and pass it the directory containing your data.
+            ..
+            2. When is readVizgen() called? During the import statement automatically.:
+                * path = os.getcwd() + '\\tutorial_data\\'
+                * esqAn = esq.Analysis(data_path=path)
+                * esqAn.print()
+        """
+
+        return tools.readVizgen(data_path, transform_file=transform_file)
 
     def availableGraphs(self, log=True):
         return tools.availableGraphs(self.getAdata(), log=log)
@@ -1083,7 +1120,7 @@ class Analysis:
             ----
 
             * qcMetrics() class function for EasySQ class.
-            * Acts as a wrapper for EasySQTools qcMetrics function.
+            * Acts as a wrapper for EasySQTools qcMetrics() function.
             * Calculates a number of qc metrics for the self AnnData object.
 
             ----

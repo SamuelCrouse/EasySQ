@@ -28,7 +28,7 @@ def esq_demo_1():
     t0 = time.time()
 
     # path = 'F:/sunlabmerfishdata/QSFL01222023/'
-    path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+    path = os.getcwd() + '\\tutorial_data\\'
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
