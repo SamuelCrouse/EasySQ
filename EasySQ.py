@@ -1091,11 +1091,84 @@ class Analysis:
         return tools.readVizgen(data_path, transform_file=transform_file)
 
     def availableGraphs(self, log=True):
+        """
+            Documentation
+
+            availableGraphs() class function docs
+            =============================
+            ----
+
+            * availableGraphs() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools availableGraphs() function.
+            * Log the graphs available to plot, then return them.
+
+            ----
+
+            Parameters:
+            ----------
+            * log=True: Bool determining whether to print the available graphs to the console or not.
+
+            Returns:
+            -------
+            * A list of strings which are the available graphs.
+
+            Examples:
+            --------
+            1. Calling readVizgen()
+                * newAdata = esqAn.readVizgen()
+                I don't recommend doing this, because it is bad design to use a current class object that manages its
+                own data to create a new, unassociated dataset; especially when there are methods in place to do so.
+                If you need to work with a new set of data, or even if you plan to use them in tandem, then you should
+                create a new 'esq' object and pass it the directory containing your data.
+            ..
+            2. When is readVizgen() called? During the import statement automatically.:
+                * path = os.getcwd() + '\\tutorial_data\\'
+                * esqAn = esq.Analysis(data_path=path)
+                * esqAn.print()
+        """
+
         return tools.availableGraphs(self.getAdata(), log=log)
 
     # plot a spatial scatter. use colorInit to generate a custom color palette by default
-    def spatialScatter(self, graphs, adata=None, show=False, libraryID=None, wspace=0.4, size=None,
+    def spatialScatter(self, graphs, adata=None, show=False, libraryID=None, wspace=None, size=None,
                        shape=None, groups=None, cmap=None, figsize=None):
+        """
+            Documentation
+
+            spatialScatter() class function docs
+            =============================
+            ----
+
+            * spatialScatter() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools spatialScatter() function.
+            * Produces a spatial scatter plot given a graph type and adata.
+
+            ----
+
+            Parameters:
+            ----------
+            * graphs=["leiden", "Slc17a7"]: A list of strings containing the graphs to plot.
+            * adata=AnnData Object or None: An AnnData Object that contains the data you wish to plot. If None is chosen, will use the currently tracked adata. Should only supply this if you are using a subsample.
+            * show=False: Whether to show the graphs now, or wait for later.
+            * libraryID="id1": A string containing the libraryID. Ignore this unless you need to set one.
+            * wspace=0.4: Dictates the width of space between the panels.
+            * size=4: Size of the scatter point/shape.
+            * shape='circle': Shape of the scatter point. 'circle', 'square', 'hex'.
+            * groups=["0", "1", "3"]: Select which values to plot.
+            * cmap="Reds": Colormap for continuous annotations.
+            * figsize=12: Size of the figure in inches.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling spatialScatter()
+                * esqAn.spatialScatter(graphs="leiden")
+                * Calls spatial scatter on an existing analysis class object.
+        """
+
         if adata is None:
             return tools.spatialScatter(adata=self.getAdata(), graphs=graphs, show=show, libraryID=libraryID,
                                         wspace=wspace, size=size, shape=shape, groups=groups, cmap=cmap,
@@ -1107,6 +1180,35 @@ class Analysis:
 
     # runs the adata setup and basic analysis tools for the user
     def adataSetup(self):
+        """
+            Documentation
+
+            adataSetup() class function docs
+            =============================
+            ----
+
+            * adataSetup() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools adataSetup() function.
+            * Runs some basic analysis functions for a generic analysis.
+            * These include qcMetrics, leiden, among others.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling adataSetup()
+                * esqAn.adataSetup()
+                * Runs the setup on the adata stored within esqAn
+        """
+
         return tools.adataSetup(self.getAdata())
 
     # adata functions
@@ -1150,56 +1252,483 @@ class Analysis:
         return tools.qcMetrics(self.getAdata(), percentTop)
 
     def layers(self):
+        """
+            Documentation
+
+            layers() class function docs
+            =============================
+            ----
+
+            * layers() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools layers() function.
+            * Returns the layer named "counts" and sets it to the value of the adata variables.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling layers()
+                * esqAn.layers()
+                * Runs layers() on the stored adata.
+        """
+
         return tools.layers(self.getAdata())
 
     def highlyVariableGenes(self, nTopGenes=4000):
+        """
+            Documentation
+
+            highlyVariableGenes() class function docs
+            =============================
+            ----
+
+            * highlyVariableGenes() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools highlyVariableGenes() function.
+            * Returns the Scanpy sc.pp.highly_variable_genes() function value.
+
+            ----
+
+            Parameters:
+            ----------
+            * nTopGenes=4000: The number of highly variable genes to keep
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.highly_variable_genes(). Updates .var or returns depending on "inplace"
+
+            Examples:
+            --------
+            1. Calling highlyVariableGenes()
+                * esqAn.highlyVariableGenes(nTopGenes=3000)
+                * Runs on the stored adata.
+        """
+
         return tools.highlyVariableGenes(self.getAdata(), nTopGenes)
 
     def normalizeTotal(self, inplace=True):
+        """
+            Documentation
+
+            normalizeTotal() class function docs
+            =============================
+            ----
+
+            * normalizeTotal() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools normalizeTotal() function.
+            * Returns the Scanpy sc.pp.normalize_total() function value.
+
+            ----
+
+            Parameters:
+            ----------
+            * inPlace=True: Whether to perform in place or return the data calculated.
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.normalize_total(). Updates or returns depending on "inplace"
+
+            Examples:
+            --------
+            1. Calling normalizeTotal()
+                * esqAn.normalizeTotal()
+                * Runs on the stored adata.
+        """
+
         return tools.normalizeTotal(self.getAdata(), inplace=inplace)
 
     def log1p(self):
+        """
+            Documentation
+
+            log1p() class function docs
+            =============================
+            ----
+
+            * log1p() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools log1p() function.
+            * Logarithmize the data matrix.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.log1p().
+
+            Examples:
+            --------
+            1. Calling log1p()
+                * esqAn.log1p()
+                * Runs on the stored adata.
+        """
+
         return tools.log1p(self.getAdata())
 
     def pp_pca(self):
+        """
+            Documentation
+
+            pp_pca() class function docs
+            =============================
+            ----
+
+            * pp_pca() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pp_pca() function.
+            * Runs principle component analysis on the stored adata.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.pca().
+
+            Examples:
+            --------
+            1. Calling pp_pca()
+                * esqAn.pp_pca()
+                * Runs on the stored adata.
+        """
+
         return tools.pp_pca(self.getAdata())
 
     def tl_pca(self, svdSolver="arpack"):
+        """
+            Documentation
+
+            tl_pca() class function docs
+            =============================
+            ----
+
+            * tl_pca() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools tl_pca() function.
+            * Runs principle component analysis on the stored adata.
+            * The difference between tl_pca and pl_pca is the function that it wraps.
+            * Some demos use pl and tl in different scenarios.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * Returns the value of sc.tl.pca().
+
+            Examples:
+            --------
+            1. Calling tl_pca()
+                * esqAn.tl_pca()
+                * Runs on the stored adata.
+        """
+
         return tools.tl_pca(self.getAdata(), svdSolver=svdSolver)
 
     def pp_neighbors(self):
+        """
+            Documentation
+
+            pp_neighbors() class function docs
+            =============================
+            ----
+
+            * pp_neighbors() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pp_neighbors() function.
+            * Computes a neighborhood graph of observations.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.neighbors().
+
+            Examples:
+            --------
+            1. Calling pp_neighbors()
+                * esqAn.pp_neighbors()
+                * Runs on the stored adata.
+        """
+
         return tools.pp_neighbors(self.getAdata())
 
-    # uses the sc.tl.umap function to calculate umap data
     def tl_umap(self):
+        """
+            Documentation
+
+            tl_umap() class function docs
+            =============================
+            ----
+
+            * tl_umap() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools tl_umap() function.
+            * Computes a neighborhood graph of observations.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * Returns the value of sc.tl.umap().
+
+            Examples:
+            --------
+            1. Calling tl_umap()
+                * esqAn.tl_umap()
+                * Runs on the stored adata.
+        """
+
         return tools.tl_umap(self.getAdata())
 
-    def clustering(self):
-        pass
-
     def leiden(self, resolution=1.0):
+        """
+            Documentation
+
+            leiden() class function docs
+            =============================
+            ----
+
+            * leiden() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools leiden() function.
+            * Clusters cells into cell groups using the Leiden algorithm.
+
+            ----
+
+            Parameters:
+            ----------
+            * resolution=1.0: A parameter value controlling the coarseness of the clustering. Higher values lead to more clusters.
+
+            Returns:
+            -------
+            * Returns the value of sc.tl.leiden().
+
+            Examples:
+            --------
+            1. Calling leiden()
+                * esqAn.leiden()
+                * Runs on the stored adata.
+        """
+
         return tools.leiden(self.getAdata(), resolution=resolution)
 
-    # can be used to filter cells with low expression
     def filterCells(self, minCounts=50):
+        """
+            Documentation
+
+            filterCells() class function docs
+            =============================
+            ----
+
+            * filterCells() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools filterCells() function.
+            * Filter cell outliers based on counts and numbers of genes expressed.
+
+            ----
+
+            Parameters:
+            ----------
+            * minCounts=50: The minimum number of genes expressed for a cell to pass filtering.
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.filter_cells().
+
+            Examples:
+            --------
+            1. Calling filterCells()
+                * esqAn.filterCells()
+                * Runs on the stored adata.
+        """
+
         return tools.filterCells(self.getAdata(), minCounts=minCounts)
 
-    # can be used to filter genes that are expressed in too few cells
     def filterGenes(self, minCells=10):
+        """
+            Documentation
+
+            filterGenes() class function docs
+            =============================
+            ----
+
+            * filterGenes() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools filterGenes() function.
+            * Filter genes based on number of cells or counts.
+
+            ----
+
+            Parameters:
+            ----------
+            * minCells=10: The minimum number of cells expressed required for a gene to pass filtering.
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.filter_genes().
+
+            Examples:
+            --------
+            1. Calling filterGenes()
+                * esqAn.filterGenes()
+                * Runs on the stored adata.
+        """
+
         return tools.filterGenes(self.getAdata(), minCells=minCells)
 
     # can be used to scale gene expression. IE Clip values that exceed 10 ('max value') standard deviations
     def scale(self, maxValue=10):
+        """
+            Documentation
+
+            scale() class function docs
+            =============================
+            ----
+
+            * scale() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools scale() function.
+            * Scale data to unit variance and zero mean.
+
+            ----
+
+            Parameters:
+            ----------
+            * maxValue=10: Clip (truncate) to this value after scaling. If None, do not clip.
+
+            Returns:
+            -------
+            * Returns the value of sc.pp.scale().
+
+            Examples:
+            --------
+            1. Calling scale()
+                * esqAn.scale()
+                * Runs on the stored adata.
+        """
+
         return tools.scale(self.getAdata(), maxValue=maxValue)
 
     def plotTranscripts(self, show=False, figsize=(15, 4)):
+        """
+            Documentation
+
+            plotTranscripts() class function docs
+            =============================
+            ----
+
+            * plotTranscripts() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools plotTranscripts() function.
+            * Plots calculated transcripts.
+
+            ----
+
+            Parameters:
+            ----------
+            * show=False: Whether to display graphs on function call, or later by calling esqAn.showPlots()
+            * figsize=(20, 6): The dimensions of the plot (x, y).
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling plotTranscripts()
+                * esqAn.plotTranscripts()
+                * Runs on the stored adata.
+        """
+
         return tools.plotTranscripts(self.getAdata(), show=show, figsize=figsize)
 
     # uses the sc.pl.umap function plot a umap. Use colorInit to generate a custom color palette by default
-    def pl_umap(self, graphs=["leiden"], show=False, colorInit=False, size=None, wspace=0.4):
+    def pl_umap(self, graphs=["leiden"], show=False, size=None, wspace=0.4):
+        """
+            Documentation
+
+            pl_umap() class function docs
+            =============================
+            ----
+
+            * pl_umap() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pl_umap() function.
+            * Similar to spatialScatter(). Takes graphs and then plots umap based on those graphs.
+
+            ----
+
+            Parameters:
+            ----------
+            * graphs=["leiden", "Slc17a7"]: A list of strings containing the graphs to plot.
+            * show=False: Whether to show the graphs now, or wait for an esqAn.showPlots() call.
+            * size=4: Size of the scatter point/shape.
+            * wspace=0.4: Dictates the width of space between the panels.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling pl_umap()
+                * esqAn.pl_umap()
+                * Runs on the stored adata.
+        """
+
         return tools.pl_umap(self.getAdata(), graphs=graphs, show=show, size=size, wspace=wspace)
 
     def gr_spatialNeighbors(self, adata=None, coordType="generic", spatialKey="spatial", delaunay=False):
+        """
+            Documentation
+
+            gr_spatialNeighbors() class function docs
+            =============================
+            ----
+
+            * gr_spatialNeighbors() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_spatialNeighbors() function.
+            * Creates a graph using spatial coordinates.
+
+            ----
+
+            Parameters:
+            ----------
+            * adata=None: Run on a supplied adata or on the self adata. Usually used to run on a subsample. Recommend leaving this at None unless you need to run on a subsample.
+            * coordType="generic": Type of coordinate system. 'grid' 'generic'
+            * spatialKey="spatial": Key in anndta.AnnData.obsm where spatial coordinates are stored. You probably set this earlier.
+            * delaunay=False: Whether to compute the graph from Delaunay triangulation. Only used when coord_type='generic'.
+
+            Returns:
+            -------
+            * The value of sq.gr.spatial_neighbors().
+
+            Examples:
+            --------
+            1. Calling gr_spatialNeighbors()
+                * esqAn.gr_spatialNeighbors()
+                * Runs on the stored adata.
+            ..
+            2. Calling gr_spatialNeighbors() with a subsample.
+                * esqAn.gr_spatialNeighbors(adata=adataSubsample)
+                * Runs on the provided subsample.
+        """
+
         if adata is None:
             return tools.gr_spatialNeighbors(adata=self.getAdata(), coordType=coordType, spatialKey=spatialKey,
                                              delaunay=delaunay)
@@ -1207,18 +1736,118 @@ class Analysis:
         else:
             return tools.gr_spatialNeighbors(adata=adata, coordType=coordType, spatialKey=spatialKey, delaunay=delaunay)
 
-    # calculate nhoodEnrichment
     def gr_nhoodEnrichment(self, clusterKey="leiden"):
+        """
+            Documentation
+
+            gr_nhoodEnrichment() class function docs
+            =============================
+            ----
+
+            * gr_nhoodEnrichment() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_nhoodEnrichment() function.
+            * Compute neighborhood enrichment by permutation test.
+
+            ----
+
+            Parameters:
+            ----------
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+
+            Returns:
+            -------
+            * The value of sq.gr.nhood_enrichment().
+
+            Examples:
+            --------
+            1. Calling gr_nhoodEnrichment()
+                * esqAn.gr_nhoodEnrichment()
+                * Runs on the stored adata using default "leiden".
+        """
+
         return tools.gr_nhoodEnrichment(adata=self.getAdata(), clusterKey=clusterKey)
 
-    # plot nhoodEnrichment data
-    def pl_nhoodEnrichment(self, show=False, clusterKey="leiden", method="average", cmap="inferno", vmin=-50, vmax=100,
-                           figsize=(5, 5)):
+    def pl_nhoodEnrichment(self, show=False, clusterKey="leiden", method="average", cmap="inferno", vmin=None,
+                           vmax=None, figsize=(5, 5)):
+        """
+            Documentation
+
+            pl_nhoodEnrichment() class function docs
+            =============================
+            ----
+
+            * pl_nhoodEnrichment() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pl_nhoodEnrichment() function.
+            * Plot the neighborhood enrichment.
+
+            ----
+
+            Parameters:
+            ----------
+            * show=False: Show now or later with esqAn.showPlots().
+            * clusterKey="leiden": Key in anndata.AnnData.obs where graph data is stored. Computed from gr_nhoodEnrichment.
+            * method="average": The linkage method to be used for dendrogram/clustering.
+            * cmap="inferno": Continuous colormap to use.
+            * vmin=-50: Lower bound for y axis on plot.
+            * vmax=100: Upper bound for y axis on plot.
+            * figsize=(5, 5): The dimensions of the plot (x, y).
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling pl_nhoodEnrichment()
+                * esqAn.pl_nhoodEnrichment()
+                * Runs on the stored adata.
+            ..
+            2. Calling pl_nhoodEnrichment() with show=True
+                * esqAn.pl_nhoodEnrichment(show=True)
+                * Runs on the stored adata and displays the plots immediately.
+        """
+
         tools.pl_nhoodEnrichment(adata=self.getAdata(), show=show, clusterKey=clusterKey, method=method,
                                  cmap=cmap, vmin=vmin, vmax=vmax, figsize=figsize)
 
-    # calculate neighborhood enrichment clusters
     def plotNHoodEnrichmentClusters(self, nClusters=[4], method="average", size=10, figsize=(5, 5)):
+        """
+            Documentation
+
+            plotNHoodEnrichmentClusters() class function docs
+            =============================
+            ----
+
+            * plotNHoodEnrichmentClusters() class function for EasySQ class.
+            * Plot the neighborhood enrichment clusters. These were probably assigned earlier using these:
+            * esqAn.assignReferenceCells()
+            * esqAn.calculateLeidenExpressionSignatures()
+            * esqAn.assignCellTypesOnExpression()
+
+            ----
+
+            Parameters:
+            ----------
+            * nClusters=[4]: Number of plots to display.
+            * method="average": Method for calculating the distance between the newly formed clusters. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+            * size=10: Marker size of the plot.
+            * figsize=(20, 10): Size of the plot.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling plotNHoodEnrichmentClusters()
+                * Assign the reference cells and run additional calculations.
+                * esqAn.assignReferenceCells()
+                * esqAn.calculateLeidenExpressionSignatures()
+                * esqAn.assignCellTypesOnExpression()
+                * esqAn.plotNHoodEnrichmentClusters()
+                * Runs on the stored adata.
+        """
+
         n_clusters = nClusters
         df_nhood_enr = pd.DataFrame(
             self.getAdata().uns["leiden_nhood_enrichment"]["zscore"],
@@ -1240,28 +1869,184 @@ class Analysis:
 
             self.spatialScatter(graphs="Cluster", groups=inst_clusters, size=size, figsize=figsize)
 
-    # compute the centrality scores
+        return None
+
     def gr_centralityScores(self, cluster_key="leiden"):
+        """
+            Documentation
+
+            gr_centralityScores() class function docs
+            =============================
+            ----
+
+            * gr_centralityScores() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_centralityScores() function.
+            * Compute centrality scores per cluster or cell type.
+
+            ----
+
+            Parameters:
+            ----------
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+
+            Returns:
+            -------
+            * The value of sq.gr.centrality_scores().
+
+            Examples:
+            --------
+            1. Calling gr_centralityScores()
+                * esqAn.gr_centralityScores()
+                * Runs on the stored adata using default "leiden".
+        """
+
         return tools.gr_centralityScores(adata=self.getAdata(), cluster_key=cluster_key)
 
     # graph the centrality scores
     def pl_centralityScores(self, cluster_key="leiden", figsize=None):
+        """
+            Documentation
+
+            pl_centralityScores() class function docs
+            =============================
+            ----
+
+            * pl_centralityScores() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pl_centralityScores() function.
+            * Plot the centrality scores that were calculated with gr_centralityScores()
+
+            ----
+
+            Parameters:
+            ----------
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+            * figsize=(10, 10): Size of the plot
+
+            Returns:
+            -------
+            * The value of sq.pl_centralityScores().
+
+            Examples:
+            --------
+            1. Calling pl_centralityScores()
+                * esqAn.pl_centralityScores()
+                * Runs on the stored adata using default "leiden".
+                * Plots can be shown with esqAn.showPlots()
+        """
+
         return tools.pl_centralityScores(adata=self.getAdata(), cluster_key=cluster_key, figsize=figsize)
 
-    # Subsample to a fraction of the number of observations.
     def adataSubsample(self, fraction=0.5, copy=True):
+        """
+            Documentation
+
+            adataSubsample() class function docs
+            =============================
+            ----
+
+            * adataSubsample() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools adataSubsample() function.
+            * Subsample to a fraction of the number of observations.
+
+            ----
+
+            Parameters:
+            ----------
+            * fraction=0.5: Fraction to subsample to.
+            * copy=True: Determines whether a copy is returned.
+
+            Returns:
+            -------
+            * The value of sc.pp.subsample().
+            * This will be the subsample that was computed.
+
+            Examples:
+            --------
+            1. Calling adataSubsample()
+                * subsample = esqAn.adataSubsample()
+                * Runs on the stored adata.
+        """
+
         return tools.adataSubsample(adata=self.getAdata(), fraction=fraction, copy=copy)
 
-    # compute the co-occurrence probability
     def gr_co_occurrence(self, adata=None, cluster_key="leiden"):
+        """
+            Documentation
+
+            gr_co_occurrence() class function docs
+            =============================
+            ----
+
+            * gr_co_occurrence() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_co_occurrence() function.
+            * Calculates the co-occurrence probabilities for clusters.
+
+            ----
+
+            Parameters:
+            ----------
+            * adata=adataSubsample: A subsample of adata we can run on. If running on whole set, this should be None.
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+
+            Returns:
+            -------
+            * The value of sq.gr.co_occurrence().
+
+            Examples:
+            --------
+            1. Calling gr_co_occurrence()
+                * esqAn.gr_co_occurrence()
+                * Runs on the stored adata.
+            ..
+            2. Calling gr_co_occurrence()
+                * subsample = esqAn.adataSubsample()
+                * esqAn.gr_co_occurrence(adata=subsample)
+                * Runs on the provided subsample.
+        """
+
         if adata is None:
             return tools.gr_co_occurrence(adata=self.getAdata(), cluster_key=cluster_key)
 
         else:
             return tools.gr_co_occurrence(adata=adata, cluster_key=cluster_key)
 
-    # graph the co-occurrence probability
     def pl_co_occurrence(self, adata=None, cluster_key="leiden", clusters="12", figsize=None):
+        """
+            Documentation
+
+            pl_co_occurrence() class function docs
+            =============================
+            ----
+
+            * pl_co_occurrence() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pl_co_occurrence() function.
+            * Plot the co-occurrence probability ratio for each cluster.
+
+            ----
+
+            Parameters:
+            ----------
+            * adata=adataSubsample: A subsample of adata we can run on. If running on whole set, this should be None.
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+            * clusters="12": Cluster instances for which to plot conditional probability.
+            * figsize=(10,10): Size of the plot.
+
+            Returns:
+            -------
+            * The value of sq.pl.co_occurrence().
+
+            Examples:
+            --------
+            1. Calling pl_co_occurrence()
+                * esqAn.pl_co_occurrence()
+                * Runs on the stored adata.
+            ..
+            2. Calling pl_co_occurrence()
+                * subsample = esqAn.adataSubsample()
+                * esqAn.pl_co_occurrence(adata=subsample)
+                * Runs on the provided subsample.
+        """
+
         if adata is None:
             return tools.pl_co_occurrence(adata=self.getAdata(), cluster_key=cluster_key, clusters=clusters,
                                           figsize=figsize)
@@ -1269,27 +2054,142 @@ class Analysis:
         else:
             return tools.pl_co_occurrence(adata=adata, cluster_key=cluster_key, clusters=clusters, figsize=figsize)
 
-    # compute Ripley's statistics
     def gr_ripley(self, cluster_key="leiden", mode="L"):
+        """
+            Documentation
+
+            gr_ripley() class function docs
+            =============================
+            ----
+
+            * gr_ripley() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_ripley() function.
+            * Calculate various Ripley's statistics for point processes.
+
+            ----
+
+            Parameters:
+            ----------
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+            * mode="L": Which Ripley's statistic to compute. "F", "G", "L"
+
+            Returns:
+            -------
+            * The value of sq.gr.ripley().
+
+            Examples:
+            --------
+            1. Calling gr_ripley()
+                * esqAn.gr_ripley()
+                * Runs on the stored adata.
+        """
+
         return tools.gr_ripley(adata=self.getAdata(), cluster_key=cluster_key, mode=mode)
 
-    # graph Ripley's statistics
     def pl_ripley(self, cluster_key="leiden", mode="L"):
+        """
+            Documentation
+
+            pl_ripley() class function docs
+            =============================
+            ----
+
+            * pl_ripley() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools pl_ripley() function.
+            * Plot Ripley's statistics.
+
+            ----
+
+            Parameters:
+            ----------
+            * clusterKey="leiden": Key in anndata.AnnData.obs where clustering is stored. This almost always runs on leiden.
+            * mode="L": Which Ripley's statistic to compute. "F", "G", "L"
+
+            Returns:
+            -------
+            * The value of sq.pl.ripley().
+
+            Examples:
+            --------
+            1. Calling gr_ripley()
+                * esqAn.gr_ripley()
+                * Runs on the stored adata.
+                * show the plots with esqAn.showPlots()
+        """
+
         return tools.pl_ripley(adata=self.getAdata(), cluster_key=cluster_key, mode=mode)
 
     def gr_spatialAutocorr(self, adata=None, mode="moran", nPerms=None, nJobs=None):
+        """
+            Documentation
+
+            gr_spatialAutocorr() class function docs
+            =============================
+            ----
+
+            * gr_spatialAutocorr() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools gr_spatialAutocorr() function.
+            * Calculate Global Autocorrelation Statistic (Moran’s I or Geary’s C).
+
+            ----
+
+            Parameters:
+            ----------
+            * adata=subsample: Provided adata to run on. If running on self, adata=None.
+            * mode="geary": Mode of score calculation. "moran" "geary"
+            * nPerms=4: Number of permutations for the permutation test. If None, only p-values under normality assumption are computed.
+            * nJobs=2: Number of parallel jobs.
+
+            Returns:
+            -------
+            * The value of sq.gr.spatial_autocorr().
+
+            Examples:
+            --------
+            1. Calling gr_spatialAutocorr()
+                * esqAn.gr_spatialAutocorr()
+                * Runs on the stored adata.
+        """
+
         if adata is None:
             tools.gr_spatialAutocorr(adata=self.getAdata(), mode=mode, nPerms=nPerms, nJobs=nJobs)
 
         else:
             tools.gr_spatialAutocorr(adata=adata, mode=mode, nPerms=nPerms, nJobs=nJobs)
 
-    # Reference Gene Functions (metaGene)
-    def assignReferenceCells(self):
-        # Assign marker gene metadata using reference dataset
+    def assignReferenceCells(self, gene_panel_url="https://static-content.springer.com/esm/art%3A10.1038%2Fs41421-021-00266-1/MediaObjects/41421_2021_266_MOESM1_ESM.xlsx"):
+        """
+            Documentation
+
+            assignReferenceCells() class function docs
+            =============================
+            ----
+
+            * assignReferenceCells() class function for EasySQ class.
+            * Assign marker gene metadata using reference dataset.
+            * print/log The markers after computation.
+
+            ----
+
+            Parameters:
+            ----------
+            * gene_panel_url="https://content.com/reference_dataset.xlsx": Url of the panel we will use to reference cells.
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling assignReferenceCells()
+                * esqAn.assignReferenceCells()
+                * Runs on the stored adata.
+        """
+
+        # Assign marker gene metadata using reference dataset.
 
         # get the reference panel
-        gene_panel = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41421-021-00266-1/MediaObjects/41421_2021_266_MOESM1_ESM.xlsx"
+        gene_panel = gene_panel_url
         df_ref_panel_ini = pd.read_excel(gene_panel, index_col=0)
         self.setDfRefPanel(df_ref_panel_ini.iloc[1:, :1])
         self.getDfRefPanel().index.name = None
@@ -1310,7 +2210,37 @@ class Analysis:
         )
         print(self.getMetaGene()["Markers"].value_counts())
 
+        return None
+
     def calculateLeidenExpressionSignatures(self):
+        """
+            Documentation
+
+            calculateLeidenExpressionSignatures() class function docs
+            =============================
+            ----
+
+            * calculateLeidenExpressionSignatures() class function for EasySQ class.
+            * Calculates the leiden expression signatures.
+            * Uses leiden, sig leiden, and meta leiden to calculate expression signatures.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling calculateLeidenExpressionSignatures()
+                * esqAn.calculateLeidenExpressionSignatures()
+                * Runs on the stored adata.
+        """
+
         ser_counts = self.getAdata().obs["leiden"].value_counts()
         ser_counts.name = "cell counts"
         self.setMetaLeiden(pd.DataFrame(ser_counts))
@@ -1329,15 +2259,43 @@ class Analysis:
             self.getMetaLeiden().index.tolist(), index=self.getMetaLeiden().index.tolist()
         )
 
+        return None
+
     def assignCellTypesOnExpression(self):
+        """
+            Documentation
+
+            assignCellTypesOnExpression() class function docs
+            =============================
+            ----
+
+            * assignCellTypesOnExpression() class function for EasySQ class.
+            * Assigns cell types based on expression.
+            * This uses the reference panel set in assignReferenceCells()
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling assignCellTypesOnExpression()
+                * esqAn.assignCellTypesOnExpression()
+                * Runs on the stored adata.
+        """
+
         meta_gene = pd.DataFrame(index=self.getSigLeiden().index.tolist())
         meta_gene["info"] = pd.Series("", index=meta_gene.index.tolist())
         meta_gene["Markers"] = pd.Series("N.A.", index=self.getSigLeiden().index.tolist())
         meta_gene.loc[self.getCommonMarkerGenes(), "Markers"] = self.getDfRefPanel().loc[
             self.getCommonMarkerGenes(), "Function"
         ]
-
-        print("GOT HERE 3")
 
         self.getMetaLeiden()["Cell_Type"] = pd.Series("N.A.", index=self.getMetaLeiden().index.tolist())
         num_top_genes = 30
@@ -1379,41 +2337,301 @@ class Analysis:
             lambda x: leiden_to_cell_type.loc["Leiden-" + str(x), "name"]
         )
 
+        return None
+
     def calcSerCloseness(self):
-        # closeness centrality - measure of how close the group is to other nodes.
+        """
+            Documentation
+
+            calcSerCloseness() class function docs
+            =============================
+            ----
+
+            * calcSerCloseness() class function for EasySQ class.
+            * Calculates ser closeness value and sets the class variable.
+            * closeness centrality - measure of how close the group is to other nodes.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling calcSerCloseness()
+                * esqAn.calcSerCloseness()
+                * Runs on the stored adata.
+        """
+
         self.setSerCloseness(self.getDfCentral()["closeness_centrality"].sort_values(ascending=False))
+        return None
 
     def calcSerDegree(self):
-        # The degree centrality for a node v is the fraction of nodes it is connected to.
+        """
+            Documentation
+
+            calcSerDegree() class function docs
+            =============================
+            ----
+
+            * calcSerDegree() class function for EasySQ class.
+            * Calculates ser degree value and sets the class variable.
+            * The degree centrality for a node v is the fraction of nodes it is connected to.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling calcSerDegree()
+                * esqAn.calcSerDegree()
+                * Runs on the stored adata.
+        """
+
         self.setSerDegree(self.getDfCentral()["degree_centrality"].sort_values(ascending=False))
+        return None
 
     def calcSerCluster(self):
-        # clustering coefficient - measure of the degree to which nodes cluster together.
+        """
+            Documentation
+
+            calcSerCluster() class function docs
+            =============================
+            ----
+
+            * calcSerCluster() class function for EasySQ class.
+            * Calculates ser cluster value and sets the class variable.
+            * clustering coefficient - measure of the degree to which nodes cluster together.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling calcSerCluster()
+                * esqAn.calcSerCluster()
+                * Runs on the stored adata.
+        """
+
         self.setSerCluster(self.getDfCentral()["average_clustering"].sort_values(ascending=False))
+        return None
 
     def highClosenessScore(self):
+        """
+            Documentation
+
+            highClosenessScore() class function docs
+            =============================
+            ----
+
+            * highClosenessScore() class function for EasySQ class.
+            * Plots the high end of the ser closeness score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling highClosenessScore()
+                * esqAn.highClosenessScore()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerCloseness().index.tolist()[:5]
         self.spatialScatter(groups=inst_clusters, graphs="Cluster")
+        return None
 
     def lowClosenessScore(self):
+        """
+            Documentation
+
+            lowClosenessScore() class function docs
+            =============================
+            ----
+
+            * lowClosenessScore() class function for EasySQ class.
+            * Plots the low end of the ser closeness score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling lowClosenessScore()
+                * esqAn.lowClosenessScore()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerCloseness().index.tolist()[-5:]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+        return None
 
     def highDegreeCentrality(self):
+        """
+            Documentation
+
+            highDegreeCentrality() class function docs
+            =============================
+            ----
+
+            * highDegreeCentrality() class function for EasySQ class.
+            * Plots the high end of the ser degree score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling highDegreeCentrality()
+                * esqAn.highDegreeCentrality()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerDegree().index.tolist()[:5]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+        return None
 
     def lowDegreeCentrality(self):
+        """
+            Documentation
+
+            lowDegreeCentrality() class function docs
+            =============================
+            ----
+
+            * lowDegreeCentrality() class function for EasySQ class.
+            * Plots the low end of the ser degree score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling lowDegreeCentrality()
+                * esqAn.lowDegreeCentrality()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerDegree().index.tolist()[-5:]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+        return None
 
     def highClusteringCoefficient(self):
+        """
+            Documentation
+
+            highClusteringCoefficient() class function docs
+            =============================
+            ----
+
+            * highClusteringCoefficient() class function for EasySQ class.
+            * Plots the high end of the ser cluster score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling highClusteringCoefficient()
+                * esqAn.highClusteringCoefficient()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerCluster().index.tolist()[:5]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+        return None
 
     def lowClusteringCoefficient(self):
+        """
+            Documentation
+
+            lowClusteringCoefficient() class function docs
+            =============================
+            ----
+
+            * lowClusteringCoefficient() class function for EasySQ class.
+            * Plots the low end of the ser cluster score.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling lowClusteringCoefficient()
+                * esqAn.lowClusteringCoefficient()
+                * Runs on the stored adata.
+                * Show the plot with esqAn.showPlots().
+        """
+
         inst_clusters = self.getSerCluster().index.tolist()[-5:]
         self.spatialScatter(graphs="Cluster", groups=inst_clusters)
+        return None
 
     def calcMoransIScore(self, numView=12):
         """
@@ -1508,12 +2726,72 @@ class Analysis:
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.
     # If it isn't found, an error will be thrown.
     def setLeidenColors(self, color_file):
+        """
+            Documentation
+
+            setLeidenColors() class function docs
+            =============================
+            ----
+
+            * setLeidenColors() class function for EasySQ class.
+            * Sets the leiden colors used during spatial scatters and umaps. These are based on a file containing a list of hex values.
+
+            ----
+
+            Parameters:
+            ----------
+            * color_file="leiden_generated_random_3.txt": The color_file contained within the local "colors" directory.
+
+            Returns:
+            -------
+            * leidenColors: A list of colors that leiden colors was set to.
+
+            Examples:
+            --------
+            1. Calling setLeidenColors()
+                * color_file = "leiden_generated_random_3.txt"
+                * esqAn.setLeidenColors(color_file=color_file)
+                * Runs on the stored adata.
+            ..
+            2. Calling setLeidenColors()
+                * color_file = "colors/leiden_generated_random_3.txt"
+                * esqAn.setLeidenColors(color_file=color_file)
+                * Does the same thing as example 1.
+        """
+
         leidenColors = tools.getColors(color_file=color_file)
         tools.setLeidenColors(adata=self.getAdata(), colors=leidenColors)
         return leidenColors
 
     def showPlots(self):
+        """
+            Documentation
+
+            showPlots() class function docs
+            =============================
+            ----
+
+            * showPlots() class function for EasySQ class.
+            * Used to show the plots calculated by other methods / functions.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling setLeidenColors()
+                * esqAn.showPlots()
+        """
+
         tools.showPlots()
+        return None
 
     ####################################################################################################################
     ####################################################################################################################

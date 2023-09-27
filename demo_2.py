@@ -61,7 +61,7 @@ def esq_demo_2():
     print("Neighborhood Enrichment")
     esqAn.gr_spatialNeighbors()
     esqAn.gr_nhoodEnrichment()
-    esqAn.pl_nhoodEnrichment()
+    esqAn.pl_nhoodEnrichment(vmin=-50, vmax=100)
 
     print("Neighborhood Enrichment Clusters")
     esqAn.plotNHoodEnrichmentClusters()

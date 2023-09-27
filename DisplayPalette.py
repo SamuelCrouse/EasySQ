@@ -1,10 +1,37 @@
+# Sam Crouse
+# scrouse2@uwyo.edu
 
 import EasySQTools as tools
 import matplotlib.pyplot as plt
 
 
-# displays a color file as a palette
 def displayPalette(color_file, markerSize=10):
+    """
+        Documentation
+
+        displayPalette() docs
+        =============================
+        ----
+
+        * display a list of hex colors in a plot to visualize the palette
+
+        ----
+
+        Parameters:
+        ----------
+        * color_file="path/to/color_file.txt": Path to colors starting at current working directory.
+        * markerSize=10: Size of the markers to be displayed.
+
+        Returns:
+        -------
+        * None: Shows the plot and returns nothing.
+
+        Examples:
+        --------
+        1. Calling displayPalette():
+            * displayPalette("colors/leiden_color_set_1_random.csv", markerSize=5)
+    """
+
     print("got here 3: {}".format(color_file))
     colors = tools.getColors(color_file=color_file)
     print("colors: {}".format(colors))
@@ -33,12 +60,39 @@ def displayPalette(color_file, markerSize=10):
 
     plt.show()
 
+    return None
 
-# takes a list and multiplies the number of entries by the size
-# l1 = ["item1", "item2", "item3"]
-# size = 2
-# l2 = ['item1', 'item1', 'item2', 'item2', 'item3', 'item3']
+
 def boxifyList(l1, size):
+    """
+        Documentation
+
+        boxifyList() docs
+        =============================
+        ----
+
+        * Takes in a list (l1) and multiplies the number of entries by the size (size). Returns l2.
+
+        ----
+
+        Parameters:
+        ----------
+        * l1=["item1", "item2"]: List of items of any type.
+        * size=10: The number of times to multiply and add each item.
+
+        Returns:
+        -------
+        * list: l2: List of input items multiplied by size.
+
+        Examples:
+        --------
+        1. Calling boxifyList()
+            * l1 = ["item1", "item2", "item3"]
+            * size = 2
+            * result = boxifyList(l1, size)
+            * result = l2 = ['item1', 'item1', 'item2', 'item2', 'item3', 'item3']
+    """
+
     l2 = []
     for item in l1:
         for i in range(size):
@@ -47,6 +101,7 @@ def boxifyList(l1, size):
     return l2
 
 
+# testing for DisplayPalette.py
 if __name__ == "__main__":
     l1 = ["item1", "item2", "item3"]
     print(boxifyList(l1, 2))
@@ -59,4 +114,3 @@ if __name__ == "__main__":
     # file = "colors/leiden_generated_random_2.txt"
     # file = "colors/leiden_generated_random_3.txt"
     displayPalette(file)
-

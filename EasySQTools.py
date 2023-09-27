@@ -195,7 +195,7 @@ def makeVarNamesUnique(adata):
 
 def layers(adata):
     adata.layers["counts"] = adata.X.copy()
-    return
+    return None
 
 
 def highlyVariableGenes(adata, nTopGenes=4000):
@@ -258,11 +258,7 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
                 if graph.lower() == "leiden":  # check if leiden is in colors
                     leidenColorInit(adata=adata)
 
-    return
-
-
-def clustering(adata):
-    pass
+    return None
 
 
 # calculate spatial neighbors data
@@ -283,6 +279,8 @@ def pl_nhoodEnrichment(adata, show=False, clusterKey="leiden", method="average",
 
     if show:
         plt.show()
+
+    return None
 
 
 # compute the centrality scores
@@ -395,6 +393,7 @@ def plotTranscripts(adata, show=False, figsize=(15, 4)):
     if show:
         plt.show()
 
+    return None
 
 # endregion
 
@@ -403,7 +402,7 @@ def plotTranscripts(adata, show=False, figsize=(15, 4)):
 # takes in adata and a list of colors / filters IE ["leiden", "n_counts"]
 #
 # must setup adata by running adataSetup before this will work
-def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=0.4, size=None, shape=None,
+def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=None, shape=None,
                    groups=None, cmap=None, figsize=None):
     loopForColors = True
     while loopForColors:
@@ -442,7 +441,7 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=0.4, size=N
                 if graph.lower() == "leiden":  # check if leiden is in colors
                     leidenColorInit(adata=adata)
 
-    return
+    return None
 
 
 # default leiden color initialization
