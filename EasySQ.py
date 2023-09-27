@@ -2797,6 +2797,32 @@ class Analysis:
     ####################################################################################################################
     # region print functions
     def print(self):
+        """
+            Documentation
+
+            print() class function docs
+            =============================
+            ----
+
+            * print() class function for EasySQ class.
+            * Prints some basic information about the AnnData object.
+
+            ----
+
+            Parameters:
+            ----------
+            * None
+
+            Returns:
+            -------
+            * None
+
+            Examples:
+            --------
+            1. Calling print()
+                * esqAn.print()
+        """
+
         print("\nOBJECT INFO")
         print("object: {}".format(self))
         print("object ID: {}".format(self.getID()))
@@ -2806,6 +2832,7 @@ class Analysis:
         print(" adata:\n {}".format(self.getAdata()))
 
         print("")
+        return None
     # endregion
 
 
