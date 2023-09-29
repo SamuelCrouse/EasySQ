@@ -1049,7 +1049,7 @@ class Analysis:
     ####################################################################################################################
     # region functions
     # note: given a filepath, reads and creates an anndata object
-    def readVizgen(self, data_path, transform_file='micron_to_mosaic_pixel_transform.csv'):
+    def readVizgen(self, data_path, transform_path=None, transform_file='micron_to_mosaic_pixel_transform.csv'):
         """
             Documentation
 
@@ -1066,6 +1066,7 @@ class Analysis:
             Parameters:
             ----------
             * data_path="path/to/my/data/": The path to the directory containing your metadata.
+            * transform_path="path/to/my/dir/": Path to the root directory which must hold an 'images' directory. This dir should contain a transform_file called, by default 'micron_to_mosaic_pixel_transform.csv.' The path format looks like this ...users/pythonproject/ and your project structure will be images/micron_to_mosaic_pixel_transform.csv. You can mostly ignore these two parameters.
             * transform_file='micron_to_mosaic_pixel_transform.csv': Can be ignored unless you want to provide your own transform file.
             * This must be the name of the transform file stored in the 'images' directory.
 
@@ -1088,7 +1089,7 @@ class Analysis:
                 * esqAn.print()
         """
 
-        return tools.readVizgen(data_path, transform_file=transform_file)
+        return tools.readVizgen(data_path=data_path, transform_path=transform_path, transform_file=transform_file)
 
     def availableGraphs(self, log=True):
         """
@@ -1114,17 +1115,9 @@ class Analysis:
 
             Examples:
             --------
-            1. Calling readVizgen()
-                * newAdata = esqAn.readVizgen()
-                I don't recommend doing this, because it is bad design to use a current class object that manages its
-                own data to create a new, unassociated dataset; especially when there are methods in place to do so.
-                If you need to work with a new set of data, or even if you plan to use them in tandem, then you should
-                create a new 'esq' object and pass it the directory containing your data.
-            ..
-            2. When is readVizgen() called? During the import statement automatically.:
-                * path = os.getcwd() + '\\tutorial_data\\'
-                * esqAn = esq.Analysis(data_path=path)
-                * esqAn.print()
+            1. Calling availableGraphs()
+                * esqAn.availableGraphs()
+                * Prints the graphs available for the stored adata.
         """
 
         return tools.availableGraphs(self.getAdata(), log=log)
@@ -1166,7 +1159,7 @@ class Analysis:
             --------
             1. Calling spatialScatter()
                 * esqAn.spatialScatter(graphs="leiden")
-                * Calls spatial scatter on an existing analysis class object.
+                * Calls spatial scatter on an existing analysis class object, and runs on the stored adata.
         """
 
         if adata is None:
@@ -1424,7 +1417,7 @@ class Analysis:
 
             Parameters:
             ----------
-            * None
+            * svdSolver="arpack": The SVD solver to use.
 
             Returns:
             -------
@@ -1606,6 +1599,7 @@ class Analysis:
             * scale() class function for EasySQ class.
             * Acts as a wrapper for EasySQTools scale() function.
             * Scale data to unit variance and zero mean.
+            * Can be used to scale gene expression. IE Clip values that exceed 10 ('max value') standard deviations.
 
             ----
 
@@ -2111,8 +2105,8 @@ class Analysis:
 
             Examples:
             --------
-            1. Calling gr_ripley()
-                * esqAn.gr_ripley()
+            1. Calling pl_ripley()
+                * esqAn.pl_ripley()
                 * Runs on the stored adata.
                 * show the plots with esqAn.showPlots()
         """
@@ -2786,7 +2780,7 @@ class Analysis:
 
             Examples:
             --------
-            1. Calling setLeidenColors()
+            1. Calling showPlots()
                 * esqAn.showPlots()
         """
 
