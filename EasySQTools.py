@@ -136,11 +136,11 @@ def readVizgen(data_path, transform_path=None, transform_file='micron_to_mosaic_
         foundCellByGene = True
 
     if meta_data_file is None:
-        execString = "no meta_file found"
+        execString = "no cell_metadata file found"
         raise FileNotFoundError(execString)
 
     if cell_by_gene_file is None:
-        execString = "no cell_by_gene_file found"
+        execString = "no cell_by_gene file found"
         raise FileNotFoundError(execString)
 
     # print(meta_data_file)
@@ -394,6 +394,7 @@ def normalizeTotal(adata, inplace=True):
 
         * normalizeTotal() function for EasySQ class function normalizeTotal().
         * Acts as a wrapper for the Scanpy sc.pp.normalize_total() function.
+        * Normalizes the counts per cells.
         * Returns the Scanpy sc.pp.normalize_total() function value.
 
         ----
@@ -516,7 +517,7 @@ def tl_pca(adata, svdSolver="arpack"):
     return sc.tl.pca(adata, svd_solver=svdSolver)
 
 
-def pp_neighbors(adata):
+def pp_neighbors(adata, nNeighbors=None, nPcs=None):
     """
         Documentation
 
@@ -533,6 +534,8 @@ def pp_neighbors(adata):
         Parameters:
         ----------
         * adata=AnnData object: The anndata to run on.
+        * nNeighbors=10: The size of local neighborhood (in terms of number of neighboring data points) used for manifold approximation.
+        * nPcs=20: Use this many PCs. If n_pcs==0 use .X if use_rep is None.
 
         Returns:
         -------
@@ -545,7 +548,7 @@ def pp_neighbors(adata):
             * Runs on the provided adata.
     """
 
-    return sc.pp.neighbors(adata)
+    return sc.pp.neighbors(adata, n_neighbors=nNeighbors, n_pcs=nPcs)
 
 
 # UMAP calculations functions
@@ -1277,7 +1280,7 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
         * shape='circle': Shape of the scatter point. 'circle', 'square', 'hex'.
         * groups=["0", "1", "3"]: Select which values to plot.
         * cmap="Reds": Colormap for continuous annotations.
-        * figsize=12: Size of the figure in inches.
+        * figsize=(12, 12): Size of the figure in inches.
 
         Returns:
         -------

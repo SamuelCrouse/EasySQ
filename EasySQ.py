@@ -1149,7 +1149,7 @@ class Analysis:
             * shape='circle': Shape of the scatter point. 'circle', 'square', 'hex'.
             * groups=["0", "1", "3"]: Select which values to plot.
             * cmap="Reds": Colormap for continuous annotations.
-            * figsize=12: Size of the figure in inches.
+            * figsize=(12, 12): Size of the figure in inches.
 
             Returns:
             -------
@@ -1316,6 +1316,7 @@ class Analysis:
 
             * normalizeTotal() class function for EasySQ class.
             * Acts as a wrapper for EasySQTools normalizeTotal() function.
+            * Normalizes the counts per cells.
             * Returns the Scanpy sc.pp.normalize_total() function value.
 
             ----
@@ -1432,7 +1433,7 @@ class Analysis:
 
         return tools.tl_pca(self.getAdata(), svdSolver=svdSolver)
 
-    def pp_neighbors(self):
+    def pp_neighbors(self, nNeighbors=None, nPcs=None):
         """
             Documentation
 
@@ -1448,7 +1449,8 @@ class Analysis:
 
             Parameters:
             ----------
-            * None
+            * nNeighbors=10: The size of local neighborhood (in terms of number of neighboring data points) used for manifold approximation.
+            * nPcs=20: Use this many PCs. If n_pcs==0 use .X if use_rep is None.
 
             Returns:
             -------
@@ -1461,7 +1463,7 @@ class Analysis:
                 * Runs on the stored adata.
         """
 
-        return tools.pp_neighbors(self.getAdata())
+        return tools.pp_neighbors(self.getAdata(), nNeighbors=nNeighbors, nPcs=nPcs)
 
     def tl_umap(self):
         """
@@ -1566,7 +1568,7 @@ class Analysis:
 
             * filterGenes() class function for EasySQ class.
             * Acts as a wrapper for EasySQTools filterGenes() function.
-            * Filter genes based on number of cells or counts.
+            * Filter genes based on the number of cells or counts.
 
             ----
 
@@ -1777,7 +1779,7 @@ class Analysis:
             ----
 
             Parameters:
-            ----------
+            ----------X
             * show=False: Show now or later with esqAn.showPlots().
             * clusterKey="leiden": Key in anndata.AnnData.obs where graph data is stored. Computed from gr_nhoodEnrichment.
             * method="average": The linkage method to be used for dendrogram/clustering.

@@ -19,37 +19,39 @@ import EasySQ as esq
 def esq_demo_2():
     t0 = time.time()  # start timer
 
-    path = 'F:/sunlabmerfishdata/QSFL01222023/'
+    # path = 'F:/sunlabmerfishdata/QSFL01222023/'
+    path = os.getcwd() + '/tutorial_data_2/'
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
-    esqAn.qcMetrics(percentTop=(50, 100, 140))
+    esqAn.qcMetrics(percentTop=(50, 100, 200, 300))
 
-    esqAn.filterCells()
-    esqAn.filterGenes()
+    esqAn.filterCells(minCounts=50)
+    esqAn.filterGenes(minCells=10)
 
     print("normalize total")
     esqAn.normalizeTotal()
     print("log transform")
     esqAn.log1p()
     print("scale")
-    esqAn.scale()
+    esqAn.scale(maxValue=10)
 
     resolution = 1.5
     print("PCA")
     esqAn.tl_pca()
     print("neighbors")
-    esqAn.pp_neighbors()
+    esqAn.pp_neighbors(nNeighbors=10, nPcs=20)
     print("UMAP")
     esqAn.tl_umap()
     print("leiden")
     esqAn.leiden(resolution=resolution)
 
+    esqAn.availableGraphs()
     esqAn.pl_umap(graphs=["leiden"])
 
-    esqAn.spatialScatter(graphs="leiden", libraryID="spatial")
+    esqAn.spatialScatter(graphs=["leiden"], libraryID="spatial", figsize=(12, 12))
 
-    print("assign cell types")
+    print("Get and Assign Cell Types")
     esqAn.assignReferenceCells()
 
     print("Calculate Leiden Cluster Average Expression Signatures")
@@ -62,6 +64,8 @@ def esq_demo_2():
     esqAn.gr_spatialNeighbors()
     esqAn.gr_nhoodEnrichment()
     esqAn.pl_nhoodEnrichment(vmin=-50, vmax=100)
+
+    esqAn.showPlots()
 
     print("Neighborhood Enrichment Clusters")
     esqAn.plotNHoodEnrichmentClusters()
