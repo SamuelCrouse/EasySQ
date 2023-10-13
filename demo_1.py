@@ -28,7 +28,7 @@ def esq_demo_1():
     t0 = time.time()
 
     # path = 'F:/sunlabmerfishdata/QSFL01222023/'
-    path = os.getcwd() + '\\tutorial_data\\'
+    path = os.getcwd() + '\\tutorial_data_1\\'
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
@@ -58,10 +58,15 @@ def esq_demo_1():
 
     esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
+    esqAn.spatialScatter(graphs=["Oxgr1"])
+    esqAn.showPlots()
+
     print("pl_UMAP")
     esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
     esqAn.spatialScatter(graphs=["leiden"])
-    # esq.showPlots()
+
+    esqAn.spatialScatter(graphs=["Oxgr1"])
+    esqAn.showPlots()
 
     print("spatial neighbors")
     esqAn.gr_spatialNeighbors(delaunay=True)

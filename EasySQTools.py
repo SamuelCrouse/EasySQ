@@ -517,7 +517,7 @@ def tl_pca(adata, svdSolver="arpack"):
     return sc.tl.pca(adata, svd_solver=svdSolver)
 
 
-def pp_neighbors(adata, nNeighbors=None, nPcs=None):
+def pp_neighbors(adata, nNeighbors=15, nPcs=None):
     """
         Documentation
 
@@ -1695,10 +1695,10 @@ def searchFiles(data_path, fileToFind, loose=False):
         Examples:
         --------
         1. Calling searchFiles()
-            * path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+            * path = os.getcwd().replace('\\', '/') + '/tutorial_data_1/'
             * cell_by_gene_path_test = 'cell_by_gene'
             * result = searchFiles(path, fileToFind=cell_by_gene_path_test, loose=True)
-            * Returns the path to the file which has 'cell_by_gene' in its name within the cwd/tutorial_data/ directory.
+            * Returns the path to the file which has 'cell_by_gene' in its name within the cwd/tutorial_data_1/ directory.
     """
 
     data_path = copy.deepcopy(data_path)
@@ -1813,7 +1813,7 @@ if __name__ == "__main__":
     print("result: {}\n\n".format(result))
 
     # loose testing
-    path = os.getcwd().replace('\\', '/') + '/tutorial_data/'
+    path = os.getcwd().replace('\\', '/') + '/tutorial_data_1/'
     print(path)
 
     meta_data_path_test = 'cell_metadata'

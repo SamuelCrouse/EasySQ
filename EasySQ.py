@@ -1084,7 +1084,7 @@ class Analysis:
                 create a new 'esq' object and pass it the directory containing your data.
             ..
             2. When is readVizgen() called? During the import statement automatically.:
-                * path = os.getcwd() + '\\tutorial_data\\'
+                * path = os.getcwd() + '\\tutorial_data_1\\'
                 * esqAn = esq.Analysis(data_path=path)
                 * esqAn.print()
         """
@@ -1158,7 +1158,7 @@ class Analysis:
             Examples:
             --------
             1. Calling spatialScatter()
-                * esqAn.spatialScatter(graphs="leiden")
+                * esqAn.spatialScatter(graphs=["leiden"])
                 * Calls spatial scatter on an existing analysis class object, and runs on the stored adata.
         """
 
@@ -1433,7 +1433,7 @@ class Analysis:
 
         return tools.tl_pca(self.getAdata(), svdSolver=svdSolver)
 
-    def pp_neighbors(self, nNeighbors=None, nPcs=None):
+    def pp_neighbors(self, nNeighbors=15, nPcs=None):
         """
             Documentation
 
@@ -1863,7 +1863,7 @@ class Analysis:
         for inst_cluster in all_clusters:
             inst_clusters = df_cluster[df_cluster[inst_level] == inst_cluster].index.tolist()
 
-            self.spatialScatter(graphs="Cluster", groups=inst_clusters, size=size, figsize=figsize)
+            self.spatialScatter(graphs=["Cluster"], groups=inst_clusters, size=size, figsize=figsize)
 
         return None
 
@@ -2639,12 +2639,14 @@ class Analysis:
 
             * calcMoransIScore() class function for EasySQ class.
             * Calculates the top and bottom autocorrelation using gr_spatialAutocorr()
+            * Sets the "topAutoCorr" and "botAutoCorr" class variables based on numView.
+            * These sort the adata "moranI" values in descending and ascending order respectively.
 
             ----
 
             Parameters:
             ----------
-            * numView=12: Number of top and bottom autocorr we calculate for
+            * numView=12: Number of top and bottom autocorr we calculate for.
 
             Returns:
             -------

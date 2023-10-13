@@ -106,7 +106,7 @@ def esq_demo_2():
 
     print("Autocorrelation: Moran's I Score")
     esqAn.calcMoransIScore(numView=12)
-    esqAn.plotMoransIScore(size=40, figsize=(3, 3))
+    esqAn.plotMoransIScore(size=4, figsize=(3, 3))
 
     t1 = time.time()  # end timer
     totalTime = t1 - t0
@@ -122,8 +122,8 @@ def sq_demo_2():
     # In [3]:
     print("\nImporting data...")
     vizgen_path = vizgen_path = os.getcwd() + '\\'
-    meta_data_path = 'F:\\sunlabmerfishdata\\QSFL01222023\\cell_metadata.csv'
-    cell_by_gene_path = 'F:\\sunlabmerfishdata\\QSFL01222023\\cell_by_gene.csv'
+    meta_data_path = os.getcwd() + "/tutorial_data_2/" + "Liver1Slice1_cell_metadata.csv"
+    cell_by_gene_path = os.getcwd() + "/tutorial_data_2/" + "Liver1Slice1_cell_by_gene.csv"
     transformation_file_path = 'micron_to_mosaic_pixel_transform.csv'
 
     adata = sq.read.vizgen(path=vizgen_path,
@@ -131,8 +131,15 @@ def sq_demo_2():
                            meta_file=meta_data_path,
                            transformation_file=transformation_file_path
                            )
+
+    # path = os.getcwd() + '/tutorial_data_2/'
+    # esqAn = esq.Analysis(data_path=path)
+    # esqAn.print()
+    # adata = esqAn.getAdata()
+
     print(adata)
 
+    """
     # note: set the leiden colors so the leiden pallets aren't grey
     color_path = vizgen_path + "colors\\"
     color_file1 = 'leiden_color_set_1_gradient.csv'
@@ -149,7 +156,7 @@ def sq_demo_2():
         with open(current_color_path, "r") as color_file:
             colors = color_file.read().split('\n')
 
-        while len(colors) > 33:
+        while len(colors) > 32:
             colors.pop()
 
         color_data.append(colors)
@@ -158,15 +165,16 @@ def sq_demo_2():
     # if you change the path above you can set your own .csv of hexes
     # adata.uns['leiden_colors'] = matplotlib.colors.CSS4_COLORS.values()
     adata.uns['leiden_colors'] = color_data[4]
-    adata.uns['random_colors_1'] = color_data[1]
-    adata.uns['random_colors_2'] = color_data[2]
-    adata.uns['random_colors_3'] = color_data[3]
+    # adata.uns['random_colors_1'] = color_data[1]
+    # adata.uns['random_colors_2'] = color_data[2]
+    # adata.uns['random_colors_3'] = color_data[3]
+    # """
 
     # In [4]:
     adata.var_names_make_unique()
     adata.var["mt"] = adata.var_names.str.startswith("mt-")
     sc.pp.calculate_qc_metrics(
-        adata, qc_vars=["mt"], percent_top=(50, 100), inplace=True
+        adata, qc_vars=["mt"], percent_top=(50, 100, 200, 300), inplace=True
     )
 
     # In [5]:
@@ -194,8 +202,8 @@ def sq_demo_2():
 
     # In [9]:
     # note: display graphs up to this point
-    # sc.set_figure_params(figsize=(10, 10))
-    # sc.pl.umap(adata, color=["leiden"], size=5)
+    sc.set_figure_params(figsize=(10, 10))
+    sc.pl.umap(adata, color=["leiden"], size=5)
 
     # In [10]:
     sq.pl.spatial_scatter(
@@ -333,7 +341,7 @@ def sq_demo_2():
     inst_level = "Level-" + str(n_clusters[0])
     all_clusters = list(df_cluster[inst_level].unique())
     # sc.set_figure_params(figsize=(10,10))
-    # """
+    """
     for inst_cluster in all_clusters:
         inst_clusters = df_cluster[df_cluster[inst_level] == inst_cluster].index.tolist()
         sq.pl.spatial_scatter(
@@ -486,5 +494,5 @@ def sq_demo_2():
 
 
 if __name__ == "__main__":
-    esq_demo_2()
-    # sq_demo_2()
+    # esq_demo_2()
+    sq_demo_2()
