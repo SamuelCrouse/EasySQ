@@ -58,15 +58,9 @@ def esq_demo_1():
 
     esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
-    esqAn.spatialScatter(graphs=["Oxgr1"])
-    esqAn.showPlots()
-
     print("pl_UMAP")
     esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
     esqAn.spatialScatter(graphs=["leiden"])
-
-    esqAn.spatialScatter(graphs=["Oxgr1"])
-    esqAn.showPlots()
 
     print("spatial neighbors")
     esqAn.gr_spatialNeighbors(delaunay=True)
