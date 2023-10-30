@@ -14,6 +14,7 @@ import time
 
 # my imports
 import EasySQ as esq
+import EasySQTools as tools
 
 
 def esq_demo_2():
@@ -24,7 +25,12 @@ def esq_demo_2():
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
-    esqAn.qcMetrics(percentTop=(50, 100, 200, 300))
+    # esqAn.setLeidenColors("leiden_color_set_2_gradient.csv")
+    esqAn.setLeidenColors("leiden_generated_random_5.txt")
+
+    esqAn.qcMetrics(percentTop=(50, 100, 200, 300))  # check
+
+    print(tools.getLeidenColors(esqAn.getAdata()))
 
     esqAn.filterCells(minCounts=50)
     esqAn.filterGenes(minCells=10)
@@ -36,7 +42,9 @@ def esq_demo_2():
     print("scale")
     esqAn.scale(maxValue=10)
 
-    resolution = 1.5
+    print(tools.getLeidenColors(esqAn.getAdata()))
+
+    resolution = 1.5  # 1.5
     print("PCA")
     esqAn.tl_pca()
     print("neighbors")
@@ -46,10 +54,19 @@ def esq_demo_2():
     print("leiden")
     esqAn.leiden(resolution=resolution)
 
-    esqAn.availableGraphs()
-    esqAn.pl_umap(graphs=["leiden"])
+    print(tools.getLeidenColors(esqAn.getAdata()))
 
-    esqAn.spatialScatter(graphs=["leiden"], libraryID="spatial", figsize=(12, 12))
+    esqAn.availableGraphs()
+    esqAn.pl_umap(graphs=["leiden"], size=5)
+    esqAn.spatialScatter(graphs=["leiden"], libraryID="spatial", figsize=(10, 10), size=0.5)
+
+    print(tools.getLeidenColors(esqAn.getAdata()))
+
+    print("Finished spatial scatter, showing plots now.")
+    print("continue?")
+    input()
+    esqAn.showPlots()
+    return
 
     print("Get and Assign Cell Types")
     esqAn.assignReferenceCells()
@@ -64,8 +81,6 @@ def esq_demo_2():
     esqAn.gr_spatialNeighbors()
     esqAn.gr_nhoodEnrichment()
     esqAn.pl_nhoodEnrichment(vmin=-50, vmax=100)
-
-    esqAn.showPlots()
 
     print("Neighborhood Enrichment Clusters")
     esqAn.plotNHoodEnrichmentClusters()
@@ -494,5 +509,5 @@ def sq_demo_2():
 
 
 if __name__ == "__main__":
-    # esq_demo_2()
-    sq_demo_2()
+    esq_demo_2()
+    # sq_demo_2()

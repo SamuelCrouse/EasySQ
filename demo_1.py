@@ -37,7 +37,7 @@ def esq_demo_1():
 
     esqAn.plotTranscripts(show=False)
 
-    esqAn.filterCells(minCounts=10)
+    esqAn.filterCells(minCounts=1)
 
     print("layers")
     esqAn.layers()
@@ -56,7 +56,7 @@ def esq_demo_1():
     print("leiden")
     esqAn.leiden()
 
-    esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
+    # esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
     print("pl_UMAP")
     esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
@@ -74,7 +74,7 @@ def esq_demo_1():
     esqAn.gr_co_occurrence(adata=adata_subsample)
     esqAn.pl_co_occurrence(adata=adata_subsample)
 
-    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden")
+    esqAn.spatialScatter(adata=adata_subsample, graphs=["leiden"], size=1)
 
     print("neighbors enrichment analysis")
     esqAn.gr_nhoodEnrichment()

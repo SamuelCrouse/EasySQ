@@ -620,34 +620,65 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
             * Plots can be shown with tools.showPlots()
     """
 
+    tryCount = 1  # tracks the number of retries so we can limit the number of retries
+    totalTries = 2  # default of 2 allowed tries
     loopForColors = True
     while loopForColors:
-        # try catch for leiden existence
         try:
             sc.pl.umap(adata, color=graphs, size=size, wspace=wspace, show=False)
 
-        except KeyError as e:
-            e = str(e).strip().replace("'", '')
-            catchStr = 'Could not find key leiden in .var_names or .obs.columns.'
+            containsLeiden = False  # see if the graphs contain leiden clusters
+            # check if leiden is being graphed
+            for graph in graphs:
+                if graph.lower() == "leiden":  # check if leiden is in graphs to plot
+                    containsLeiden = True
 
-            if e == catchStr:
-                raise KeyError("Could not find key leiden in .var_names or .obs.columns! Please run leiden() first!")
+                    # If the colors have been set, then break and return
+                    if getLeidenColors(adata) is not None:
+                        loopForColors = False
 
-        # set the leiden colors and regenerate if no colors have been set
-        if getLeidenColors(adata) is not None:
-            loopForColors = False
+                    # otherwise, close the grey graph and do a color init.
+                    else:
+                        print("leiden colors are None, closing graph and running an init.")
 
-            if show:
-                plt.show()
+                        # clear the grey colored graph
+                        plt.close()
 
-        else:
-            # clear the none colored graph
-            plt.close()
+                        # default leiden color initialization
+                        leidenColorInit(adata=adata)
 
+                    break
+
+            if not containsLeiden:
+                loopForColors = False
+
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
+        # this prevents the error where we expected 32 items and got 33 or similar palette error.
+        except ValueError:
             # default leiden color initialization
             for graph in graphs:
-                if graph.lower() == "leiden":  # check if leiden is in colors
+                if graph.lower() == "leiden":  # check if leiden is in graphs to plot
+                    print("leiden colors are None, closing graph and running an init. VALUE ERROR")
                     leidenColorInit(adata=adata)
+
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
+        # this usually occurs when leiden graph is trying to be plotted, but leiden() hasn't been run yet.
+        except KeyError as e:
+            if str(e).find("Could not find key leiden in .var_names or .obs.columns.") != -1:
+                raise KeyError("leiden not found in adata. Are you trying to plot without running leiden() first?")
+
+    if show:
+        plt.show()
 
     return None
 
@@ -1293,6 +1324,8 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
             * Plots a spatial scatter of the type given by graphs based on the provided adata.
     """
 
+    tryCount = 1  # tracks the number of retries so we can limit the number of retries
+    totalTries = 2  # default of 2 allowed tries
     loopForColors = True
     while loopForColors:
         try:
@@ -1308,27 +1341,58 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
                 figsize=figsize,
             )
 
-            # set the leiden colors and regenerate if no colors have been set
-            if getLeidenColors(adata) is not None:
-                loopForColors = False
+            containsLeiden = False  # see if the graphs contain leiden clusters
+            # check if leiden is being graphed
+            for graph in graphs:
+                if graph.lower() == "leiden":  # check if leiden is in graphs to plot
+                    containsLeiden = True
 
-                if show:
-                    plt.show()
+                    # If the colors have been set, then break and return
+                    if getLeidenColors(adata) is not None:
+                        loopForColors = False
 
-            else:
-                # clear the none colored graph
-                plt.close()
+                    # otherwise, close the grey graph and do a color init.
+                    else:
+                        print("leiden colors are None, closing graph and running an init.")
 
-                # default leiden color initialization
-                for graph in graphs:
-                    if graph.lower() == "leiden":  # check if leiden is in colors
+                        # clear the grey colored graph
+                        plt.close()
+
+                        # default leiden color initialization
                         leidenColorInit(adata=adata)
 
+                    break
+
+            if not containsLeiden:
+                loopForColors = False
+
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
+        # this prevents the error where we expected 32 items and got 33 or similar palette error.
         except ValueError:
             # default leiden color initialization
             for graph in graphs:
-                if graph.lower() == "leiden":  # check if leiden is in colors
+                if graph.lower() == "leiden":  # check if leiden is in graphs to plot
+                    print("leiden colors are None, closing graph and running an init. VALUE ERROR")
                     leidenColorInit(adata=adata)
+
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
+        # this usually occurs when leiden graph is trying to be plotted, but leiden() hasn't been run yet.
+        except KeyError as e:
+            if str(e).find("Could not find key leiden in .var_names or .obs.columns.") != -1:
+                raise KeyError("leiden not found in adata. Are you trying to plot without running leiden() first?")
+
+    if show:
+        plt.show()
 
     return None
 
@@ -1367,6 +1431,7 @@ def leidenColorInit(adata):
             * Called in tools.spatialScatter() to set color palettes.
             * Called in tools.pl_umap() to set color palettes.
     """
+    print("running leiden color init")
 
     # check if leiden colors have already been set
     currentLeidenColors = getLeidenColors(adata=adata)
@@ -1425,6 +1490,7 @@ def setLeidenColors(adata, colors=None, length=200):
             * tools.setLeidenColors(adata)
             * Runs on the provided adata.
     """
+    print("setting leiden colors")
 
     if colors is None:
         print("No colors given, generating and saving now!")

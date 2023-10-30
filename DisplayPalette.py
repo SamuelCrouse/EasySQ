@@ -104,13 +104,16 @@ def boxifyList(l1, size):
 # testing for DisplayPalette.py
 if __name__ == "__main__":
     l1 = ["item1", "item2", "item3"]
-    print(boxifyList(l1, 2))
+    print(boxifyList(l1, 2), "\n")
 
-    file = "colors/leiden_color_set_1_gradient.csv"
+    # tools.createPalette(200, True, True)
+
+    file = "colors/leiden_color_set_2_gradient.csv"
     # file = "colors/leiden_color_set_1_random.csv"
     # file = "colors/leiden_color_set_2_random.csv"
     # file = "colors/leiden_color_set_3_random.csv"
     # file = "colors/leiden_generated_random_1.txt"
     # file = "colors/leiden_generated_random_2.txt"
-    # file = "colors/leiden_generated_random_3.txt"
-    displayPalette(file)
+    # file = "colors/leiden_generated_random_7.txt"
+
+    displayPalette(file, markerSize=5)
