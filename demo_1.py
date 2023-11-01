@@ -32,6 +32,8 @@ def esq_demo_1():
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
+    esqAn.setLeidenColors(color_file="leiden_generated_random_5.txt")
+
     perUn = esqAn.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
     print("percent unassigned: {}%".format(perUn))
 
@@ -55,8 +57,6 @@ def esq_demo_1():
     esqAn.tl_umap()
     print("leiden")
     esqAn.leiden()
-
-    # esqAn.setLeidenColors(color_file="leiden_generated_random_3.txt")
 
     print("pl_UMAP")
     esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])

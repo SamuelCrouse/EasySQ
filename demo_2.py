@@ -50,7 +50,7 @@ def esq_demo_2():
     esqAn.leiden(resolution=resolution)
 
     esqAn.availableGraphs()
-    esqAn.pl_umap(graphs=["leiden"], size=5)
+    esqAn.pl_umap(graphs=["leiden"], size=1)
     esqAn.spatialScatter(graphs=["leiden"], libraryID="spatial", figsize=(10, 10), size=0.5)
 
     print("Get and Assign Cell Types")
