@@ -49,8 +49,8 @@ def esq_demo_2():
     print("leiden")
     esqAn.leiden(resolution=resolution)
 
-    esqAn.availableGraphs()
     esqAn.pl_umap(graphs=["leiden"], size=1)
+    esqAn.availableGraphs()
     esqAn.spatialScatter(graphs=["leiden"], libraryID="spatial", figsize=(10, 10), size=0.5)
 
     print("Get and Assign Cell Types")
@@ -66,6 +66,8 @@ def esq_demo_2():
     esqAn.gr_spatialNeighbors()
     esqAn.gr_nhoodEnrichment()
     esqAn.pl_nhoodEnrichment(vmin=-50, vmax=100)
+
+    esqAn.showPlots()
 
     print("Neighborhood Enrichment Clusters")
     esqAn.plotNHoodEnrichmentClusters()
@@ -106,7 +108,7 @@ def esq_demo_2():
 
     print("Autocorrelation: Moran's I Score")
     esqAn.calcMoransIScore(numView=12)
-    esqAn.plotMoransIScore(size=4, figsize=(3, 3))
+    esqAn.plotMoransIScore(size=0.5, figsize=(3, 3))
 
     t1 = time.time()  # end timer
     totalTime = t1 - t0

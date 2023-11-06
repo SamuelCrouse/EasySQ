@@ -17,6 +17,7 @@ import seaborn as sns
 logging.captureWarnings(True)
 import squidpy as sq
 import scanpy as sc
+
 logging.captureWarnings(False)
 
 """
@@ -641,13 +642,13 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
                     else:
                         print("leiden colors are None, closing graph and running an init.")
 
-                        # clear the grey colored graph
-                        plt.close()
+                        # clear the empty graph
+                        figToClose = plt.get_fignums()[-1]
+                        plt.close(figToClose)
 
-                        # default leiden color initialization
                         leidenColorInit(adata=adata)
 
-                    break
+                    break  # break after leiden has been found
 
             if not containsLeiden:
                 loopForColors = False
@@ -663,8 +664,15 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
             # default leiden color initialization
             for graph in graphs:
                 if graph.lower() == "leiden":  # check if leiden is in graphs to plot
-                    print("leiden colors are None, closing graph and running an init. VALUE ERROR")
+                    print("VALUE ERROR: Palette size mismatch, correcting now")
+
+                    # clear the empty graph
+                    figToClose = plt.get_fignums()[-1]
+                    plt.close(figToClose)
+
                     leidenColorInit(adata=adata)
+
+                    break
 
             # check for retries
             if tryCount >= totalTries:
@@ -1274,6 +1282,7 @@ def plotTranscripts(adata, show=False, figsize=(15, 4)):
 
     return None
 
+
 # endregion
 
 
@@ -1355,13 +1364,13 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
                     else:
                         print("leiden colors are None, closing graph and running an init.")
 
-                        # clear the grey colored graph
-                        plt.close()
+                        # clear the empty graph
+                        figToClose = plt.get_fignums()[-1]
+                        plt.close(figToClose)
 
-                        # default leiden color initialization
                         leidenColorInit(adata=adata)
 
-                    break
+                    break  # break after leiden has been found
 
             if not containsLeiden:
                 loopForColors = False
@@ -1377,8 +1386,15 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
             # default leiden color initialization
             for graph in graphs:
                 if graph.lower() == "leiden":  # check if leiden is in graphs to plot
-                    print("leiden colors are None, closing graph and running an init. VALUE ERROR")
+                    print("VALUE ERROR: Palette size mismatch, correcting now")
+
+                    # clear the empty graph
+                    figToClose = plt.get_fignums()[-1]
+                    plt.close(figToClose)
+
                     leidenColorInit(adata=adata)
+
+                    break
 
             # check for retries
             if tryCount >= totalTries:
@@ -1441,7 +1457,7 @@ def leidenColorInit(adata):
 
     if colors is None:
         # get the default color set
-        leidenColors = getColors('leiden_generated_random_3.txt')
+        leidenColors = getColors('leiden_generated_random_5.txt')
 
     else:
         leidenColors = colors
