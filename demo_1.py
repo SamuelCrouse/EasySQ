@@ -62,10 +62,6 @@ def esq_demo_1():
     esqAn.pl_umap(graphs=["total_counts", "n_genes_by_counts", "leiden"])
     esqAn.spatialScatter(graphs=["leiden"])
 
-    esqAn.showPlots()
-
-    return
-
     print("spatial neighbors")
     esqAn.gr_spatialNeighbors(delaunay=True)
 

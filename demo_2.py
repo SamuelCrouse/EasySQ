@@ -67,8 +67,6 @@ def esq_demo_2():
     esqAn.gr_nhoodEnrichment()
     esqAn.pl_nhoodEnrichment(vmin=-50, vmax=100)
 
-    esqAn.showPlots()
-
     print("Neighborhood Enrichment Clusters")
     esqAn.plotNHoodEnrichmentClusters()
 
