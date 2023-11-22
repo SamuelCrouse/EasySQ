@@ -61,6 +61,6 @@ There is also a demo on using EasySQ with Squidpy functions so that you can mix 
 
 ## <b>Disclaimer</b>
 
-EasySQ is currently in an early access development state. Documentation is not complete and bugs may be present.<br>
-This sphere of development should be completed by November (2023).<br>
-For any questions, please contact Samuel Crouse at scrouse2@uwyo.edu.
+EasySQ is currently in an early development state.<br>
+The tutorials and demos are the best way to learn EasySQ. Bugs may be present.<br>
+For any questions, comments, or bugs, please contact Samuel Crouse at scrouse2@uwyo.edu.
