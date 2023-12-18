@@ -32,7 +32,8 @@ def esq_demo_1():
     esqAn = esq.Analysis(data_path=path)
     esqAn.print()
 
-    esqAn.setLeidenColors(color_file="leiden_generated_random_5.txt")
+    esqAn.setLeidenColors(color_file="leiden_generated_random_1.txt")
+    # esqAn.setLeidenColors(color_file="leiden_color_set_1_gradient.csv")
 
     perUn = esqAn.qcMetrics(percentTop=(50, 100, 125))  # (1, 50, 100, 150, 483)
     print("percent unassigned: {}%".format(perUn))
@@ -80,7 +81,7 @@ def esq_demo_1():
     esqAn.gr_nhoodEnrichment()
     esqAn.pl_nhoodEnrichment()
 
-    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden")
+    esqAn.spatialScatter(adata=adata_subsample, graphs="leiden", size=0.1)
 
     print("Ripley's statistics")
     esqAn.gr_ripley()
@@ -101,7 +102,7 @@ def esq_demo_1():
     esqAn.showPlots()
 
 
-"""
+# """
 def sq_demo_1():
     t0 = time.time()
 
@@ -117,6 +118,8 @@ def sq_demo_1():
                            transformation_file=transformation_file_path)
 
     print(adata)
+
+    """
 
     print("\nCalculating QC metrics...")
     sc.pp.calculate_qc_metrics(adata, percent_top=(50, 100, 125), inplace=True)
