@@ -58,8 +58,14 @@ class Analysis:
         self.ID = tools.createCode(9)
 
         # passed value initialization
-        self.data_path = data_path
-        self.adata = self.readVizgen(self.data_path)
+        # this lets us create an empty Analysis object by passing ""
+        if data_path != "":
+            self.data_path = data_path
+            self.adata = self.readVizgen(self.data_path)
+
+        else:
+            self.data_path = None
+            self.adata = None
 
         # default value init
         self.metaGene = None
