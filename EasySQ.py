@@ -54,7 +54,7 @@ class Analysis:
     ####################################################################################################################
     # region constructor
     # note: constructor
-    def __init__(self, data_path):
+    def __init__(self, data_path=""):
         self.ID = tools.createCode(9)
 
         # passed value initialization

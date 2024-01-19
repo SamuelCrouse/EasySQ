@@ -33,7 +33,7 @@ logging.captureWarnings(False)
     * Many of these functions act as a squidpy abstraction layer. However, many of these functions provide additional functionality. Such as the ability to produce custom color palettes and check for errors.
 
     ----
-    
+
     Examples:
     --------
     1. Importing EasySQTools.py:
@@ -278,8 +278,9 @@ def qcMetrics(adata, percentTop=(50, 100)):
 
         return perUnassigned
 
-    except:  # yes, I know it's bad to do this.
+    except Exception as e:  # yes, I know it's bad to do this.
         print("unknown error, running without qc_vars")
+        print("ERROR: {}".format(e))
 
     sc.pp.calculate_qc_metrics(adata, percent_top=percentTop, inplace=True)
     perUnassigned = adata.obsm["blank_genes"].to_numpy().sum() / adata.var["total_counts"].sum() * 100
@@ -621,11 +622,17 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
             * Plots can be shown with tools.showPlots()
     """
 
-    tryCount = 1  # tracks the number of retries so we can limit the number of retries
-    totalTries = 2  # default of 2 allowed tries
+    tryCount = 0  # tracks the number of retries so we can limit the number of retries
+    totalTries = 10  # default of 2 allowed tries
     loopForColors = True
     while loopForColors:
         try:
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
             sc.pl.umap(adata, color=graphs, size=size, wspace=wspace, show=False)
 
             containsLeiden = False  # see if the graphs contain leiden clusters
@@ -653,14 +660,9 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
             if not containsLeiden:
                 loopForColors = False
 
-            # check for retries
-            if tryCount >= totalTries:
-                break
-
-            tryCount += 1
-
         # this prevents the error where we expected 32 items and got 33 or similar palette error.
-        except ValueError:
+        except ValueError as e:
+            print(e)
             # default leiden color initialization
             for graph in graphs:
                 if graph.lower() == "leiden":  # check if leiden is in graphs to plot
@@ -684,6 +686,12 @@ def pl_umap(adata, graphs=["leiden"], show=False, size=None, wspace=0.4):
         except KeyError as e:
             if str(e).find("Could not find key leiden in .var_names or .obs.columns.") != -1:
                 raise KeyError("leiden not found in adata. Are you trying to plot without running leiden() first?")
+
+            elif str(e).find("Could not find 'umap' or 'X_umap' in .obsm") != -1:
+                raise KeyError("Could not find 'umap' in .obsm, have you run tl_umap() first?")
+
+            else:
+                raise KeyError(e)
 
     if show:
         plt.show()
@@ -1333,11 +1341,17 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
             * Plots a spatial scatter of the type given by graphs based on the provided adata.
     """
 
-    tryCount = 1  # tracks the number of retries so we can limit the number of retries
-    totalTries = 2  # default of 2 allowed tries
+    tryCount = 0  # tracks the number of retries so we can limit the number of retries
+    totalTries = 10  # default of 2 allowed tries
     loopForColors = True
     while loopForColors:
         try:
+            # check for retries
+            if tryCount >= totalTries:
+                break
+
+            tryCount += 1
+
             sq.pl.spatial_scatter(
                 adata,
                 shape=shape,
@@ -1375,14 +1389,9 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
             if not containsLeiden:
                 loopForColors = False
 
-            # check for retries
-            if tryCount >= totalTries:
-                break
-
-            tryCount += 1
-
         # this prevents the error where we expected 32 items and got 33 or similar palette error.
-        except ValueError:
+        except ValueError as e:
+            print(e)
             # default leiden color initialization
             for graph in graphs:
                 if graph.lower() == "leiden":  # check if leiden is in graphs to plot
@@ -1406,6 +1415,9 @@ def spatialScatter(adata, graphs, show=False, libraryID=None, wspace=None, size=
         except KeyError as e:
             if str(e).find("Could not find key leiden in .var_names or .obs.columns.") != -1:
                 raise KeyError("leiden not found in adata. Are you trying to plot without running leiden() first?")
+
+            else:
+                raise KeyError(e)
 
     if show:
         plt.show()
