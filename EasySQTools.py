@@ -1291,6 +1291,36 @@ def plotTranscripts(adata, show=False, figsize=(15, 4)):
     return None
 
 
+def tlRankGenesGroups(adata, groupby='leiden', method='wilcoxon'):
+    """
+        Documentation
+
+        tlRankGenesGroups() tools function docs
+        =============================
+        ----
+
+        * tlRankGenesGroups() function for EasySQ class function tlRankGenesGroups().
+        * Returns the value of sc.tl.rank_genes_groups()
+        * This function calculates the marker genes and stores them in the adata under "rank_genes_groups".
+
+        ----
+
+        Parameters:
+        ----------
+        * groupby='leiden': how the marker genes are grouped
+        * method='wilcoxon': the method to determine marker genes
+
+        Returns:
+        -------
+        * value of sc.tl.rank_genes_groups()
+
+        Examples:
+        --------
+        1. Calling tools.tlRankGenesGroups()
+            * tools.tlRankGenesGroups(adata=adata, groupby='leiden', method='wilcoxon')
+    """
+
+    return sc.tl.rank_genes_groups(adata=adata, groupby=groupby, method=method)
 # endregion
 
 

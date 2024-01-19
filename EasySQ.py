@@ -2735,6 +2735,41 @@ class Analysis:
         self.spatialScatter(graphs=self.getBotAutoCorr(), cmap="Reds", size=size, figsize=figsize)
 
         return None
+
+    def tlRankGenesGroups(self, groupby='leiden', method='wilcoxon'):
+        """
+            Documentation
+
+            tlRankGenesGroups() class function docs
+            =============================
+            ----
+
+            * tlRankGenesGroups() class function for EasySQ class.
+            * Acts as a wrapper for EasySQTools tlRankGenesGroups() function.
+            * Returns the value of tools.tlRankGenesGroups
+            * This function calculates the marker genes and stores them in the adata under "rank_genes_groups".
+
+            ----
+
+            Parameters:
+            ----------
+            * groupby='leiden': how the marker genes are grouped
+            * method='wilcoxon': the method to determine marker genes
+
+            Returns:
+            -------
+            * value of sc.tl.rank_genes_groups()
+
+            Examples:
+            --------
+            1. Calling tlRankGenesGroups()
+                * esqAn.tlRankGenesGroups(groupby='leiden', method='wilcoxon')
+                * Runs tlRankGenesGroups() on the stored adata.
+        """
+
+        return tools.tlRankGenesGroups(adata=self.getAdata(), groupby=groupby, method=method)
+
+
     # endregion
 
     # searches the color directory for the given file. If it is found, it returns the colors and sets the leiden colors.
