@@ -30,6 +30,8 @@ class Analysis:
           called using this class object. Operations will then be done to the stored AnnData.
         * Follow these demos to see how to work with EasySQ.
         * The demos can be found at (https://github.com/SamuelCrouse/EasySQ)
+        * If working with meta data the above works fine. If working with h5ad or hdf5, write the path to the .hdf5 and
+          EasySQ will import that as well.
         ----
 
         Examples:
