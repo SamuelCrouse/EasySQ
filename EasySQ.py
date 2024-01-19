@@ -8,6 +8,7 @@
 from copy import deepcopy
 import pandas as pd
 from scipy.cluster import hierarchy as sch
+import anndata as ad
 
 # my imports
 import EasySQTools as tools
@@ -61,7 +62,11 @@ class Analysis:
         # this lets us create an empty Analysis object by passing ""
         if data_path != "":
             self.data_path = data_path
-            self.adata = self.readVizgen(self.data_path)
+            try:
+                self.adata = self.readVizgen(self.data_path)
+
+            except FileNotFoundError:
+                self.adata = ad.read_h5ad(self.data_path)
 
         else:
             self.data_path = None
