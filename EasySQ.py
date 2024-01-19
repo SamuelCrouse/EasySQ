@@ -68,6 +68,9 @@ class Analysis:
             except FileNotFoundError:
                 self.adata = ad.read_h5ad(self.data_path)
 
+            except NotADirectoryError:
+                self.adata = ad.read_h5ad(self.data_path)
+
         else:
             self.data_path = None
             self.adata = None
